@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -17,7 +17,7 @@ DB_CONNECT = 'mysql+pymysql://root:20020118czr@localhost:3306/imgmark'
 engine = create_engine(DB_CONNECT, echo=True)
 DB_Session = sessionmaker(bind=engine)
 session = DB_Session()
-
+connect = ["0","Name"]
 
 class User(BaseModel):
     __tablename__ = 'user'
@@ -58,6 +58,35 @@ def hello_world():
     return "Hello World"
 
 
+@app.route('/receive', methods=['GET', 'POST'])
+def receive(): 
+    account = request.form.get("account")
+    password = request.form.get("password")
+    selectUser = engine.execute("select * from user where userid ="+account)
+    test = {}
+    i = 0
+    for userItem in selectUser:
+        i = i + 1
+        test = {'userid': userItem[0], 'name': userItem[1], 'password': userItem[2], 'tel': userItem[3], 'mail': userItem[4]}
+        if(userItem[2] == password):
+            connect[0] = 1
+            connect[1] = account
+            return redirect("http://localhost:3000/")
+    if(i == 0):
+        connect[0] = 2
+    else:
+        connect[0] = 3
+    return redirect("http://localhost:3000/")
+
+
+@app.route('/getconnect', methods=['GET', 'POST'])
+def getconnect(): 
+    test = {'state':connect[0],'userid':connect[1]}
+    list = []
+    list.append(test)
+    return json.dumps(list)
+
+
 @app.route('/getuser', methods=['GET', 'POST'])
 def getuser():
     cookie = request.values.get("cookie")
@@ -71,6 +100,12 @@ def getuser():
         return json.dumps(list)
     else:
         return "error"
+
+
+from urllib.parse import urlparse, urljoin
+ 
+
+
 
 
 @app.route('/gettask', methods=['GET', 'POST'])

@@ -1,0 +1,313 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>标记</title>
+</head>
+<style>
+    html, body {
+        height: 100%;
+        min-height: 100%;
+        overflow: hidden;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        border:none;
+    }
+
+    .canvasWrap {
+        width: 100%;
+        height: 100%;
+        background: #ccc;
+    }
+    .mark_list{
+        position: absolute;
+        top: 20px;
+        right: 10px;
+
+    }
+    .mark_list li{
+        float: left;
+        width: 100px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        list-style: none;
+        line-height: 30px;
+        text-align: center;
+        color:#333;
+        background: #fff;
+        cursor: pointer;
+    }
+    .mark_list li:hover{
+        background: #009a8f;
+        color:#fff;
+    }
+</style>
+<body>
+
+<div class="canvasWrap" id="wrap">
+    <canvas id="draw">
+
+    </canvas>
+
+    <ul class="mark_list">
+        <li class="border_mark">标记区域</li>
+        <li>标记点位</li>
+    </ul>
+</div>
+
+</body>
+<script>
+    function MarkPoints(Imgurl) {
+        this.imgX = 0;//在画布上图片的X偏移量
+        this.imgY = 0;//在画布上图片的Y偏移量
+        this.imgScale = 1;//图片的缩放比例
+        this.rateNum;//图片高度自适应比例,图片等比居中展示在canvas
+        this.scaleFlag = 0;//缩放因子，最大缩放9,最小缩放-9
+        this.context;
+        this.img;
+        this.pos={};//每次拖拽前坐标保存
+        this.dragFlag=false;//是否可拖拽当前img，默认不能
+        this.markFlag=false;//标记区域开启关闭flag
+        this.CreatLinepoints = [];//每次创建新区域的坐标集合
+        this.allMarkLins = [];//已创建的区域集合，例如[[{x,y},{x,y},{x,y}],[{n,m},{n,m},{n,m}]]目前只需要一个区域，所以数组内部只有一项
+        this.getImgLoad(Imgurl);
+        this.init();
+        document.oncontextmenu = new Function("event.returnValue=false;");
+        document.onselectstart = new Function("event.returnValue=false;");
+
+    }
+
+    MarkPoints.prototype = {
+        getImgLoad: function (Imgurl) {
+            var _this = this;
+            var wrap = document.getElementById('wrap');
+            _this.canvas = document.getElementById('draw');
+            _this.context = draw.getContext('2d');
+            _this.canvas.height = wrap.offsetHeight;
+            _this.canvas.width = wrap.offsetWidth;
+            _this.img = new Image();
+            _this.img.onload = function () {
+                _this.imgX = 0;
+                _this.imgY = 0;
+                _this.imgScale = 1;
+                _this.imgScale=_this.rateNum = _this.canvas.height / _this.img.naturalHeight;
+                _this.imgX = (_this.canvas.width - _this.img.naturalWidth * _this.imgScale * _this.rateNum) / 2;//默认进来当前图像剧中显示
+                /*画出当前图片*/
+                _this.drawImg();
+            }
+            _this.img.src = imgUrl;
+
+        },
+        getNewPoints: function (points) {
+            var _this=this;
+            var newPointAry = [];
+            for (var i = 0; i < points.length; i++) {
+                var obj = {};
+                obj.x = points[i].x * _this.imgScale + _this.imgX;
+                obj.y = points[i].y * _this.imgScale + _this.imgY;
+                if (points[i].hasOwnProperty('mac')) {
+                    obj.mac = points[i].mac;
+                    obj.name = points[i].name || '';
+                }
+
+                newPointAry.push(obj);
+            }
+            return newPointAry;
+        },
+        drawImg: function () {
+            var _this = this;
+            _this.context.clearRect(0, 0, _this.canvas.width, _this.canvas.height);
+            _this.context.drawImage(_this.img, 0, 0, _this.img.naturalWidth, _this.img.naturalHeight, _this.imgX, _this.imgY, _this.img.naturalWidth * _this.imgScale * _this.rateNum, _this.img.naturalHeight * _this.imgScale * _this.rateNum);
+            if ( _this.allMarkLins.length) {
+                for (var m = 0; m < _this.allMarkLins.length; m++) {
+                    var points = _this.allMarkLins[m];
+                    var newPoints = _this.getNewPoints(points);
+                    for (var i = 0; i < newPoints.length; i++) {
+                        var can = _this.context;
+                        can.beginPath();
+                        can.arc(newPoints[i].x, newPoints[i].y, 6, 0, Math.PI * 2, true);
+                        can.fillStyle = "#FF423E";
+                        can.fill();
+                        can.strokeStyle = "#FFF";
+                        can.stroke();//画空心圆
+                        can.closePath();
+
+                        if (points.length >= 2 && i >= 1) {
+                            can.strokeStyle = "#FF423E";
+                            can.lineWidth = 2;
+                            can.beginPath();
+                            can.moveTo(newPoints[i - 1].x, newPoints[i - 1].y);
+                            can.lineTo(newPoints[i].x, newPoints[i].y);
+                            can.fillStyle = "#ff0000";
+                            can.fill();
+                            can.stroke();
+                            can.closePath();
+                        }
+                    }
+                    if (points.length >= 3) {
+                        can.strokeStyle = "#FF423E";
+                        can.lineWidth = 2;
+                        can.beginPath();
+                        can.moveTo(newPoints[newPoints.length - 1].x, newPoints[newPoints.length - 1].y);
+                        can.lineTo(newPoints[0].x, newPoints[0].y);
+                        can.stroke();
+                        can.closePath();
+                    }
+                }
+                ;
+            }
+
+        },
+        init:function () {
+            var _this=this;
+            _this.canvas.onmousedown=function(event){
+                _this.clickDown(event);
+            };
+            _this.canvas.onmousemove=function(event){
+                _this.mouseMove(event)
+            };
+            _this.canvas.onmouseup=function (event) {
+                _this.mouseUp(event);
+            }
+            _this.canvas.onmousewheel=function (event) {
+                _this.onmouseWheel(event);
+            }
+            document.getElementsByClassName('border_mark')[0].onclick=function () {
+                _this.MarkBorderline();
+            }
+        },
+        /*计算当前鼠标位置距离canvas的偏移量*/
+        xyToCanvas:function(ele,x,y){
+            var _this=this;
+            var obj = _this.canvas.getBoundingClientRect();
+            return {
+                x: x - obj.left,
+                y: y - obj.top
+            };
+        },
+        /*鼠标单击事件*/
+        clickDown:function(event){
+            var _this=this;
+            if (_this.markFlag) {
+                _this.canvas.style.cursor = "none";
+                if (event.button == 2) {
+                    _this.markFlag = false;
+                    _this.dragFlag = true;
+                    _this.canvas.style.cursor = "normal";
+                    _this.drawImg();
+                    return;
+                } else {
+                    var posXY = _this.xyToCanvas(_this.canvas, event.clientX, event.clientY);
+                    posXY.x = (posXY.x - _this.imgX) / _this.imgScale;
+                    posXY.y = (posXY.y - _this.imgY) / _this.imgScale;
+                    _this.CreatLinepoints.push(posXY);
+                    _this.allMarkLins.pop();
+                    _this.allMarkLins.push(_this.CreatLinepoints);
+                    _this.drawImg();
+                }
+                return;
+            }
+            if ( event.button == 0) {//点击鼠标左键
+                _this.dragFlag = true;
+                _this.canvas.style.cursor = "move";
+                _this.pos = _this.xyToCanvas(_this.canvas, event.clientX, event.clientY);
+            }
+        },
+        /*鼠标移动事件*/
+        mouseMove:function(event){
+            var _this=this;
+            /*拖拽*/
+            if (_this.dragFlag) {
+                _this.canvas.style.cursor = "move";
+                var pos1 =  _this.xyToCanvas( _this.canvas, event.clientX, event.clientY);
+                var x = pos1.x -  _this.pos.x;
+                var y = pos1.y -  _this.pos.y;
+                _this.pos = pos1;
+                _this.imgX += x;
+                _this.imgY += y;
+                _this.drawImg();
+            }
+            /*边界标记*/
+            if (!_this.dragFlag&& _this.markFlag) {
+                var pos1 = _this.xyToCanvas(_this.canvas, event.clientX, event.clientY);
+
+                var can = _this.context;
+                can.clearRect(0, 0, _this.canvas.width, _this.canvas.height);
+                _this.drawImg();
+                /*画跟随圆点*/
+                can.beginPath();
+                //   can.fillText('[' + point.x + ', ' + point.y + ']', 15, 25 * (points.length + 1))
+                can.arc(pos1.x, pos1.y, 6, 0, Math.PI * 2, true);
+                can.fillStyle = "#FF423E";
+                can.fill();
+                can.strokeStyle = "#FFF";
+                can.stroke();//画空心圆
+                can.closePath();
+
+                /*当前的坐标未结束那么继续 跟随直线*/
+                if (!_this.CreatLinepoints.length) return;
+                can.strokeStyle = "red";
+                can.beginPath();
+                can.moveTo(_this.CreatLinepoints[_this.CreatLinepoints.length - 1].x * _this.imgScale + _this.imgX, _this.CreatLinepoints[_this.CreatLinepoints.length - 1].y * _this.imgScale + _this.imgY);
+                can.lineTo(pos1.x, pos1.y);
+                can.stroke();
+                can.closePath();
+            }
+        },
+        /*鼠标放开事件*/
+        mouseUp:function (event) {
+            var _this=this;
+            _this.dragFlag=false;
+            if (_this.markFlag) {
+                _this.canvas.style.cursor = "none";
+                return;
+            }
+            _this.canvas.style.cursor='default';
+
+        },
+        /*鼠标滚轮事件*/
+        onmouseWheel:function(event){
+            var _this=this;
+            var pos =_this.xyToCanvas(_this.canvas, event.clientX, event.clientY);
+            event.wheelDelta = event.wheelDelta ? event.wheelDelta : (event.deltaY * (-40));
+            if (event.wheelDelta > 0 && _this.scaleFlag < 9) {
+                _this.imgScale *= 2;
+                _this.imgX = _this.imgX * 2 - pos.x;
+                _this.imgY = _this.imgY * 2 - pos.y;
+                _this.scaleFlag += 1;
+            }
+            if (event.wheelDelta < 0 && _this.scaleFlag > -9) {//缩小
+                _this.imgScale *= 0.5;
+                _this.imgX = _this.imgX * 0.5 + pos.x * 0.5;
+                _this.imgY = _this.imgY * 0.5 + pos.y * 0.5;
+                _this.scaleFlag -= 1;
+            }
+            _this.drawImg();
+        },
+        /*边界标记*/
+        MarkBorderline: function () {
+            var _this=this;
+            _this.markFlag = true;//切换为true，禁止拖拽，只能标记
+            _this.canvas.style.cursor = "none";
+            _this.CreatLinepoints = [];
+            _this.allMarkLins.push([]);
+        },
+        /*删除标记区域*/
+        deleteArea: function (id) {
+            var _this = this;
+            _this.allMarkLins.splice(id, 1);
+            _this.drawImg();
+        },
+        
+        
+
+    }
+    var imgUrl = 'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg';//图片路径
+    new MarkPoints(imgUrl);
+
+
+</script>
+</html>

@@ -1,24 +1,30 @@
-import React from "react";
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
+import Card  from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Collapse from '@mui/material/Collapse';
+import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { red } from '@mui/material/colors';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Link } from "react-router-dom";
+import { CardActionArea } from '@mui/material';
 
-import { Card as MuiCard } from "@material-ui/core";
-import Chip from "@material-ui/core/Chip";
-import SvgIcon from "@material-ui/core/SvgIcon";
-import Divider from "@material-ui/core/Divider";
-import CardMedia from "@material-ui/core/CardMedia";
-import Typography from "@material-ui/core/Typography";
-import CardContent from "@material-ui/core/CardContent";
-import CardActionArea from "@material-ui/core/CardActionArea";
+const Card1 = ({ taskid, taskdesc, endtime, taskowner, taskstate}) => {
 
-import { useStyles } from "./styles.js";
-
-const Card = ({ taskid, taskdesc, endtime, taskowner, taskstate}) => {
-  const classes = useStyles();
   return (
+    
     <Link to={`/task/${taskid}`} style={{ textDecoration: 'none' }}>
-       <MuiCard className={1}>
-       
-        <CardActionArea>
+      
+       <Card >
+       <CardActionArea>
           <CardMedia
             component="img"
             alt={1}
@@ -41,19 +47,17 @@ const Card = ({ taskid, taskdesc, endtime, taskowner, taskstate}) => {
               <Typography variant="h6" className={1}>
                 <span>Task：{2}</span>
               </Typography>
-              <Chip
-                  size='medium'
-                  label= { taskstate ?  'Can Take' : 'Can’t Take' }
-                  color =  { taskstate ?  'primary' : 'success' }
-              />
+              
             </div>
           </CardContent>
           
-        </CardActionArea>
-        
-      </MuiCard>
+
+          </CardActionArea>
+      </Card>
+     
      </Link>
+    
   );
 };
 
-export default Card;
+export default Card1;
