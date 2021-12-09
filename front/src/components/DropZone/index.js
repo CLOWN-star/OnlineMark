@@ -105,6 +105,7 @@ const DropZone = ({ onFileUploaded })  => {
 
   const onDrop = useCallback (acceptedFiles =>  {
     const file = acceptedFiles[0];
+
     var reader = new window.FileReader();
     reader.readAsArrayBuffer(file);
     reader.onload = function(e){
@@ -114,11 +115,10 @@ const DropZone = ({ onFileUploaded })  => {
       gen();
      } 
     const fileUrl = URL.createObjectURL(file);
+    console.log(fileUrl)
     setShowFile(fileUrl)
     onFileUploaded(file);
   }, [onFileUploaded]);
-
-
 
 
   const { getRootProps, getInputProps } = useDropzone({
