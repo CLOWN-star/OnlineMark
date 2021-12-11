@@ -20,125 +20,169 @@ import CardActions from '@mui/material/CardActions';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 
-
-  
-const submitHandler = (e) => {
-  //this.goNext();
-};
-
-
-function Loginprocess(users,login){
+const Home = ({users,login,hello}) => {
   const [ Count, SetCount ] = useState(0)
-  return(
-    <div>
-      
-      <div>
-          <Button size="small"></Button>
-      </div>
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignContent ="center"
-      >
-        
-        <Card sx={{ maxWidth: 300 }}>
-         
-          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-            {login[0].state == "3"?
-              <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                This is an error alert — <strong>Wrong password</strong>
-              </Alert>
-              :<div></div>}
-            {login[0].state == "2"?
-              <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                This is an error alert — <strong>Wrong Account</strong>
-              </Alert>
-              :<div></div>}
-
-
-            <div> 
-            <form action="/receive" method="post" onSubmit={submitHandler}>
-              <FormControl sx={{ m: 1, width: '32ch' }} variant="outlined">
-                <InputLabel htmlFor="outlined-adornment-password">Account</InputLabel>
-                <OutlinedInput
-                  id="outlined-adornment-password"
-                  type={'text'}
-                  label="account"
-                  name="account"
-                />
-              </FormControl>
-
-              <FormControl sx={{ m: 1, width: '32ch' }} variant="outlined">
-                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                <OutlinedInput
-                  id="outlined-adornment-password"
-                  type={Count ? 'text' : 'password'}
-                  name="password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={()=>SetCount(count => !count)}
-                        edge="end"
-                        name="password"
-                      > 
-                        {Count ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  label="Password"
-                />
-              </FormControl>
-             
-              <CardActions>
-                <Button size="big">Register</Button>
-                <Button size="big" type="submit">Login</Button>
-              </CardActions>
-
-              </form>
-            </div>
-          </Box>
-        </Card>  
-      </Grid> 
-    </div>
-    
-  );
-}
-
-const Home = ({users,login}) => {
+  const [ result,setResult ] = useState(0)
+  const [account, setAccount] = useState()
+  const [password, setPassword] = useState()
   
-  
-  if(login[0].state == "1"){
+  const submitHandler = (e) => {
+    console.log(account);
+    console.log(password);
+
+    let formData = new FormData();  
+    formData.append("account",account);  
+    formData.append("password",password);   
+    var url = '/loginin';//传值的地址
+    fetch(url, {
+        method: 'POST',//post方法
+        body: formData
+    }).then(res => {res.json().
+        then((data)=> {
+            data.map((datas)=>{ 
+                console.log("111"); 
+                console.log(datas.result); 
+                setResult(result=>datas.result) 
+                sessionStorage.setItem("loginstate",datas.result);
+            })}
+        )})
+  };
+
+  function  handleAccountChange(event){  
+    setAccount(account=>event.target.value);
+  }
+
+
+  function  handlePasswordChange(event){  
+    setPassword(password=>event.target.value);
+  }
+
+  function Loginprocess(users,login,hello){
    
-    return (
-      <div>
-        <Link to="/about" style={{ textDecoration: 'none' }}>
-          <Grid
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            container spacing={3}
-          >
-            <Grid item key={1}>
-              <Card1 />
-            </Grid>   
-          </Grid>
-        </Link> 
-      </div>        
+    return(
+      <div style={{ display: "flex",alignItems: "center", height:600}}>
+        
+        <Grid
+          container
+          direction="row"
+          justifyContent="center"
+          alignContent ="center"
+        >
+            
+          <Card sx={{ maxWidth: 300 }}>
+            {result == "1"?
+              <Alert severity="error">
+                Error alert — <strong>Wrong password</strong>
+              </Alert>
+              :<div></div>}
+            {result == "2"?
+              <Alert severity="error">
+                Error alert — <strong>Wrong Account</strong>
+              </Alert>
+              :<div></div>}
+              {result == "3"?
+              <Alert severity="success">
+                  <strong>登录成功</strong>
+              </Alert>
+              :<div></div>}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+              <div> 
+              
+                  <FormControl sx={{ m: 1, width: '32ch' }} variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">Account</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-password"
+                      type={'text'}
+                      label="account"
+                      value = {account}
+                      onChange={handleAccountChange}
+                      name="account"
+                    />
+                  </FormControl>
+
+                  <FormControl sx={{ m: 1, width: '32ch' }} variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-password"
+                      type={Count ? 'text' : 'password'}
+                      name="password"
+                      value = {password}
+                      onChange={handlePasswordChange}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={()=>SetCount(count => !count)}
+                            edge="end"
+                            name="password"
+                          > 
+                            {Count ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      label="Password"
+                    />
+                  </FormControl>
+              
+                  <CardActions>
+                  {result == "3"?<div></div>:
+                  <div>
+                      <Link to="/register"  style={{ textDecoration: 'none' }}>
+                        <Button size="big" >Register</Button>
+                      </Link>
+                    <Button size="big" onClick={submitHandler}>Login</Button>
+                    </div>
+                    }
+                    
+                  {result == "3"?
+                   <Link to={`/`} style={{ textDecoration: 'none' }} onClick="refresh">
+                    <Button size="big" >前往个人中心</Button>
+                    </Link>
+                :<div></div>}
+                </CardActions>
+
+              </div>
+            </Box>
+          </Card>  
+        </Grid> 
+      </div>
+      
     );
   }
-  else{
+
+
     
-    return (
-          Loginprocess(users,login)
-    );
     
-  }
-  
+    if(sessionStorage.getItem("loginstate")==3){
+    
+      return (
+
+        <div>
+          <Link to="/about" style={{ textDecoration: 'none' }}>
+            <Grid
+              container
+              direction="row"
+              justifyContent="center"
+              height
+            >
+              <Grid item key={1}>
+                <Card1 />
+              </Grid>   
+            </Grid>
+          </Link> 
+        </div>      
+
+      );
+    }
+    else{
+      
+      return (
+
+            Loginprocess(users,login,hello)
+      );
+      
+    }
+    
 };
 
 export default Home;

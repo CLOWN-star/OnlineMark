@@ -5,6 +5,7 @@ import About from "./components/About/About";
 import Guidebar from "./components/Guidebar/Guidebar";
 import Create from "./components/Create/Create";
 import Mark from "./components/Mark/Mark";
+import Register from "./components/Register/Register";
 
 var arr = ["a","b","c"]
 export default class AppRouter extends Component {
@@ -25,6 +26,7 @@ export default class AppRouter extends Component {
    
 
    getuser(){
+      
       let uri =  "/getuser?cookie=20020118czr"
       fetch(uri, {method: 'GET'}).then((res)=>{res.json().
             then((data)=> {
@@ -85,6 +87,7 @@ export default class AppRouter extends Component {
    };
 
    getconnect(){
+      console.log("app"+this.state.hello)
       let uri =  "/getconnect"
       fetch(uri, {method: 'GET'}).then((res)=>{res.json().
             then((data)=> {
@@ -115,15 +118,16 @@ export default class AppRouter extends Component {
       localStorage.setItem("file1","");
       localStorage.setItem("file2","");
       localStorage.setItem("file3","");
+     
   }
 
 
   
 render() {
      
- 　　if (this.state.isloading!=5) {
- 　　　　return <p>isLoading...</p>
- 　　}
+      if (this.state.isloading!=5) {
+         return <p>isLoading...</p>
+      }
       else{
          return (
          
@@ -136,18 +140,22 @@ render() {
                         element={<Home
                            users = {this.state.users}
                            login = {this.state.login} 
+                           hello = {this.state.hello}
                         />} 
                      />
    
                      <Route path="/mytask" 
                         element={<Create
-                           
                         />} 
                      /> 
 
                      <Route path="/mark" 
-                        element={<Mark
-                           
+                        element={<Mark  
+                        />} 
+                     /> 
+
+                     <Route path="/register" 
+                        element={<Register  
                         />} 
                      /> 
 
@@ -155,6 +163,7 @@ render() {
                         element={<About
                            users = {this.state.users}
                            login = {this.state.login} 
+                           hello = {this.state.hello}
                         />} 
                      /> 
    

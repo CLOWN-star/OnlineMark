@@ -12,7 +12,7 @@ const columns: GridColDef[] = [
   { field: 'col2', headerName: 'Column 2', width: 150 },
 ];
 
-export default function App({users,login}) {
+export default function App({users,login,hello}) {
   return (
     <div style={{ height: 300, width: '100%' }}>
       {login[0].state}

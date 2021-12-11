@@ -2,16 +2,22 @@ import React from "react";
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch'
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
  
 export default class CanvasComponent extends React.Component {
-
+    
   constructor(props) {
     super(props);
+   
     this.canvasRef = React.createRef();
     this.state = {
         savex:[],
@@ -30,13 +36,14 @@ export default class CanvasComponent extends React.Component {
         imgh:0,
         filefloder:"",
         filename:"",
-        filepath:""
+        filepath:"",
+        open:0
     };
     
   }
 
-    draw = (pointx,pointy,crossflag,name) => {       
-        this.canvasContext.clearRect(0,0,800,600)
+    draw = (pointx,pointy,crossflag,name) => {     
+        this.canvasContext.clearRect(0,0,800,550)
         var img = new Image();
         img.src = 'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg'
         this.setState({imgw:img.width})
@@ -433,6 +440,7 @@ export default class CanvasComponent extends React.Component {
     };
 
     handleXChange = (event) => {
+        
         let tmp = [] ;
         tmp = this.state.savex;
         tmp[this.state.choosepoint] =  parseInt(event.target.value);
@@ -478,7 +486,18 @@ export default class CanvasComponent extends React.Component {
         this.setState({savename:tmp},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
     };
 
+    handleClickOpen = () => {
+        this.setState({open:true})
+      };
+    
+    handleClose = () => {
+        this.setState({open:false})
+      };
+
+      
+
     handleDelete = (event)=>{
+        this.setState({choosepoint:-1})
         let tmpx =[];
         tmpx = this.state.savex;
         let tmpy =[];
@@ -522,6 +541,7 @@ export default class CanvasComponent extends React.Component {
     
 
     exportfile = (event) => {
+        this.setState({open:false})
         var FileSaver = require('file-saver');
         let data = "<annotation>";
         data = data + "<folder>"+this.state.filefloder+"</folder>\n";
@@ -561,26 +581,12 @@ export default class CanvasComponent extends React.Component {
         data = data + "</annotation>";
         var blob = new Blob([data], { type: "text/plain;charset=utf-8" });
         FileSaver.saveAs(blob, "mark.xml");
-        //document.executeCommand("saveas")
-
-        // var img = new Image();
-        // img.setAttribute('crossOrigin', 'anonymous');
-        // img.src = 'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg'
-        
-        // let canvas = this.canvasRef.current;
-        // var ctx=canvas.getContext("2d");
-        // canvas.setAttribute('width',600)
-        // canvas.setAttribute('height',600)
-        // ctx.drawImage(img,100,100);
-        // canvas.toBlob(function(blob) {
-        //     FileSaver.saveAs(blob, 'test3.png')
-        //   });
-
     };
 
 
    drawsidebar() {
-       if(this.state.isdraw!=0){
+  
+    if(this.state.isdraw!=0){
         return(
             <div>
               <Chip label="请先完成当前标注"/>  
@@ -589,29 +595,18 @@ export default class CanvasComponent extends React.Component {
        }
        else
         return(
-            <div>
-                <FormControl component="fieldset">
-                    <FormControlLabel control={<Switch  
-                        checked={this.state.choosemode==false?"defaultChecked":""}
-                        onClick={() => this.setState({choosemode:!this.state.choosemode})}
-                    /> } label="标注模式" />
-
-                    <FormControlLabel control={<Switch  
-                        checked={this.state.showposition==true?"defaultChecked":""}
-                        onClick={this.showpositionnumber}
-                    /> } label="坐标显示" />
-
-
-                    <Chip label="颜色"/>  
-                    <RadioGroup row aria-label="which" name="row-radio-buttons-group" value = {this.state.choosecolor} onChange={this.handleColorChange}>
-                        <Radio value = '#000' color="default"/>
-                        <Radio value = "#4682B4" color="info" />
-                        <Radio value = '#3CB371' color="success" />
-                        <Radio value = '#CD5C5C' color="error" />
-                    </RadioGroup>
-
+            <div style={{ alignItems: "flex-start"}}>
+                 <TextField label="标注对象名" id="outlined-size-small"  size="small" value = {this.state.choose==-1?"未选择":this.state.savename[this.state.choose]} onChange={this.handleNameChange}/>
+                <Box
+                    component="form"
+                    sx={{
+                        '& > :not(style)': { m: 1, width: '15ch' },
+                    }}
+                    noValidate
+                    autoComplete="off"
+                >
                     <Chip label="标注对象"/>  
-                    <RadioGroup row aria-label="which" name="row-radio-buttons-group" value = {this.state.choose} onChange={this.handleRadioChange}>
+                    <RadioGroup  aria-label="which" name="row-radio-buttons-group" value = {this.state.choose} onChange={this.handleRadioChange}>
                         {
                         this.state.savename.map((item,index)=>{
                             return(
@@ -619,23 +614,108 @@ export default class CanvasComponent extends React.Component {
                             )
                         })}
                     </RadioGroup>
-                    <TextField label="标注对象名" id="outlined-size-small"  size="small" value = {this.state.choose==-1?"请选择一个标注":this.state.savename[this.state.choose]} onChange={this.handleNameChange}/>
-                    <TextField label="选择点x坐标" id="outlined-size-small"  defaultValue = "0" size="small" value = {this.state.choosepoint==-1?"请选择一个点":this.state.savex[this.state.choosepoint]} onChange={this.handleXChange}/>
-                    <TextField label="选择点y坐标" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.choosepoint==-1?"请选择一个点":this.state.savey[this.state.choosepoint]} onChange={this.handleYChange}/>
-                    <Button size="big" variant="contained" onClick ={this.handleDelete}>Delele select</Button>
-                    <Button size="big" variant="contained" onClick ={this.exportfile}>export</Button>
-                    <TextField label="图片文件夹信息" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.filefloder}onChange={this.handlefilefloderChange}/>
-                    <TextField label="图片文件名" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.filename} onChange={this.handlefilenameChange}/>
-                    <TextField label="图片路径" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.filepath} onChange={this.handlefilepathChange}/>
-                </FormControl>
+                </Box>
+                <div  style={{  flexDirection: "column",display: "flex"}}>
+                    
+                   
+                    <Button  variant="contained" onClick ={this.handleDelete}>Delele select</Button>    
+                </div>      
             </div>          
         );
     }
+
  
   render() {
-    return <>
-      <canvas ref={this.canvasRef} id={'cav'} width={800} height={600} />
-      {this.drawsidebar()}
-    </>;
+
+    return (
+        <div>
+            <div style={{ display: "flex",alignItems: "center"}}>
+            
+                    <canvas ref={this.canvasRef} id={'cav'} width={800} height={550} />
+                    {this.drawsidebar()}
+            </div>  
+            {this.state.isdraw?
+            <div>
+               
+            </div>
+            :
+            <div>
+                 <div  style={{ display: "flex",alignItems: "center"}}>
+                    <div>
+                        <div  style={{ display: "flex"}}>
+                            <div>
+                                <FormControlLabel control={<Switch  
+                                checked={this.state.choosemode==false?"defaultChecked":""}
+                                onClick={() => this.setState({choosemode:!this.state.choosemode})}
+                                /> } label="标注模式" />
+                            </div>
+                            <div>
+                            <FormControlLabel control={<Switch  
+                                checked={this.state.showposition==true?"defaultChecked":""}
+                                onClick={this.showpositionnumber}
+                            /> } label="坐标显示" />
+                            </div>
+                        </div>
+                        <Box
+                            component="form"
+                            sx={{
+                                '& > :not(style)': { m: 1, width: '10ch' },
+                            }}
+                            noValidate
+                            autoComplete="off"
+                        >
+                            <Button size="big" variant="contained" onClick ={this.handleClickOpen}>save</Button>
+                            <Button size="big" variant="contained" onClick ={this.handleClickOpen}>export</Button>
+                        </Box>
+                    </div>
+                    <div>
+                        <  Chip label="显示颜色选择"/>  
+                        <RadioGroup row aria-label="which" name="row-radio-buttons-group" value = {this.state.choosecolor} onChange={this.handleColorChange}>
+                            <Radio value = '#000' color="default"/>
+                            <Radio value = "#4682B4" color="info" />
+                            <Radio value = '#3CB371' color="success" />
+                            <Radio value = '#CD5C5C' color="error" />
+                        </RadioGroup>
+                    </div>
+                    <Box
+                        component="form"
+                        sx={{
+                            '& > :not(style)': { m: 1, width: '10ch' },
+                        }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <div>
+                            <TextField label="选择点x坐标" id="outlined-size-small"  defaultValue = "0" size="small" value = {this.state.choosepoint==-1?"未选择":this.state.savex[this.state.choosepoint]} onChange={this.handleXChange}/>
+                        </div>
+                        <div>
+                            <TextField label="选择点y坐标" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.choosepoint==-1?"未选择":this.state.savey[this.state.choosepoint]} onChange={this.handleYChange}/>
+                        </div>
+                        
+                    </Box>
+                    
+                    
+                </div>
+                <div>
+                    <Dialog open={this.state.open} onClose={this.handleClose}>
+                        <DialogTitle>导出xml</DialogTitle>
+                        <DialogContent>
+                        <DialogContentText>
+                            请输入正确的导出信息
+                        </DialogContentText>
+                        <TextField  autoFocus fullWidth  variant="standard"  margin="dense"label="图片文件名" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.filename} onChange={this.handlefilenameChange}/>
+                        <TextField  fullWidth   variant="standard" margin="dense"label="图片文件夹信息" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.filefloder}onChange={this.handlefilefloderChange}/>
+                        <TextField  fullWidth   variant="standard"  margin="dense"label="图片路径" id="outlined-size-small" defaultValue = "0" size="small" value = {this.state.filepath} onChange={this.handlefilepathChange}/>
+                        </DialogContent>
+                        <DialogActions>
+                        <Button onClick={this.handleClose}>Cancel</Button>
+                        <Button onClick={this.exportfile}>Subscribe</Button>
+                        </DialogActions>
+                    </Dialog>
+                </div>
+            </div>
+            }       
+        </div>
+   );
   }
 }

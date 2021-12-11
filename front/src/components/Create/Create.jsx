@@ -5,7 +5,11 @@ import DropZone from "../../components/DropZone";
 import { Link} from "react-router-dom";
 import CancelOutlinedIcon  from "@material-ui/icons/CancelOutlined";
 import Button from '@mui/material/Button';
-
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Card  from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
 
 var name;
 var desc;
@@ -41,19 +45,26 @@ const Create = () => {
                          <DropZone onFileUploaded={setSelectedFile} />
                     </div>
                     <fieldset>
+                        <Card sx={{ maxWidth: 300 }}>
+                            <FormControl sx={{ m: 1, width: '32ch' }} variant="outlined">
+                                <InputLabel htmlFor="outlined-adornment-password">DESC</InputLabel>
+                                <OutlinedInput
+                                    id="standard-helperText"
+                                    type={'text'}
+                                    label="Desc"
+                                    type="search"
+                                    variant="standard"
+                                    onChange={event => setDesc(event.target.value)}
+                                />
 
-                        <TextField
-                            id="standard-password-input"
-                            label="Desc"
-                            type="text"
-                            variant="standard"
-                            name="desc"
-                            onChange={event => setDesc(event.target.value)}
-                        />
-                        
-                        <Button variant="contained" color="primary" onClick={createTask}>
-                            Submit
-                        </Button>
+                            </FormControl>
+
+                                <CardActions>
+                                    <Button variant="contained" color="primary" onClick={createTask}>
+                                        Submit
+                                    </Button>
+                                </CardActions>
+                            </Card>
                     </fieldset>
                 </div>
             </form>          

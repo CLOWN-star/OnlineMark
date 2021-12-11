@@ -23,9 +23,9 @@ class User(BaseModel):
     __tablename__ = 'user'
     userid = Column(Integer,primary_key=True)
     name = Column(CHAR(45))
-    tel = Column(CHAR(45))
     mail = Column(CHAR(45))
     password = Column(CHAR(45))
+   
 
 class Task(BaseModel):
     __tablename__ = 'task'
@@ -58,25 +58,64 @@ def hello_world():
     return "Hello World"
 
 
-@app.route('/receive', methods=['GET', 'POST'])
-def receive(): 
+@app.route('/register', methods=['GET','POST'])
+def register():
+    account = request.form.get('account')
+    password = request.form.get("password")
+    email = request.form.get("email")
+    # print(email)
+    list = []
+    selectUser = engine.execute("select * from user where name = \""+account+"\"")
+    test = {'result':"0"}
+    wrong = 0
+    i = 0
+    for itmes in selectUser:
+        i = i + 1
+    if i != 0:
+       test = {'result':"1"}
+       wrong = 1
+    selectEmail = engine.execute("select * from user where mail = \""+email+"\"")
+    i = 0
+    for itmes in selectEmail:
+        i = i + 1
+    if i != 0:
+        test = {'result':"2"}
+        wrong = 1
+    if(wrong != 1):
+        str = "INSERT INTO user (name, password, mail) VALUES ('"+account+"','"+password+"','"+email+"')"
+        engine.execute(str)
+    list.append(test)
+    return json.dumps(list)
+
+
+@app.route('/loginin', methods=['GET', 'POST'])
+def loginin(): 
     account = request.form.get("account")
     password = request.form.get("password")
-    selectUser = engine.execute("select * from user where userid ="+account)
-    test = {}
+    print(account)
+    print(password)
+    test = {'result':"0"}
+    list = []
+    if(account==""):
+        test = {'result':"2",'account':account}
+        list.append(test)
+        return json.dumps(list)
+    selectUser = engine.execute("select * from user where name =\""+account+"\"")
     i = 0
     for userItem in selectUser:
         i = i + 1
-        test = {'userid': userItem[0], 'name': userItem[1], 'password': userItem[2], 'tel': userItem[3], 'mail': userItem[4]}
         if(userItem[2] == password):
-            connect[0] = 1
-            connect[1] = account
-            return redirect("http://localhost:3000/")
+            test = {'result':"3" ,'account':account}
+            list.append(test)
+            return json.dumps(list)
     if(i == 0):
-        connect[0] = 2
+        test = {'result':"2"}
+        list.append(test)
+        return json.dumps(list)
     else:
-        connect[0] = 3
-    return redirect("http://localhost:3000/")
+        test = {'result':"1"}
+        list.append(test)
+        return json.dumps(list)
 
 
 @app.route('/getconnect', methods=['GET', 'POST'])
@@ -95,7 +134,8 @@ def getuser():
         test = {}
         list = []
         for userItem in selectUser:
-            test = {'userid': userItem[0], 'name': userItem[1], 'password': userItem[2], 'tel': userItem[3], 'mail': userItem[4]}
+            print(userItem)
+            test = {'userid': userItem[0], 'name': userItem[1], 'password': userItem[2], 'mail': userItem[3]}
             list.append(test)
         return json.dumps(list)
     else:
@@ -155,4 +195,4 @@ def getmark():
 
 
 if __name__=='__main__':
-    app.run(host="127.0.0.1", port=5000)
+    app.run(host="127.0.0.1", port=5000,debug=True)

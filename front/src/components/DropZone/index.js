@@ -127,7 +127,6 @@ const DropZone = ({ onFileUploaded })  => {
   });
   
   return (
-    <div>
     <div className={classes.dropzone} {...getRootProps()}>
       <input {...getInputProps()} accept='image/*' />
 
@@ -141,11 +140,6 @@ const DropZone = ({ onFileUploaded })  => {
         )
       }
 
-      
-    </div>
-      <Button size="big" onClick={handlecross}>Back</Button>
-      <Button size="big" onClick={handledelete}>Delete</Button>
-      <Button size="big" onClick={handleadd}>Next</Button>
     </div>
   );
 }
