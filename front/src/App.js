@@ -5,6 +5,7 @@ import About from "./components/About/About";
 import Guidebar from "./components/Guidebar/Guidebar";
 import Create from "./components/Create/Create";
 import Mark from "./components/Mark/Mark";
+import VideoCap from "./components/VideoCap/VideoCap";
 import Register from "./components/Register/Register";
 
 var arr = ["a","b","c"]
@@ -151,6 +152,11 @@ render() {
 
                      <Route path="/mark" 
                         element={<Mark  
+                        />} 
+                     /> 
+
+                     <Route path="/videocap" 
+                        element={<VideoCap  
                         />} 
                      /> 
 

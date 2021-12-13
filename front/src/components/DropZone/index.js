@@ -13,8 +13,12 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
   const classes = useStyles();
   const [showFile, setShowFile] = useState("-1");
   const showFileRef = useRef(showFile);
+  
+  
   showFileRef.current = showFile;
-
+  var videoElem;
+  var videoDiv;
+  var url;
   const ipfs = create({
     host: "ipfs.infura.io",
     port: 5001,
@@ -32,24 +36,34 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
       setShowFile(showfile)
   }
 
+  
   const onDrop = useCallback (acceptedFiles =>  {
     const file = acceptedFiles[0];
-    var reader = new window.FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onload = function(e){
-      const img = new Image()
-      img.src = reader.result;
-      buffer = reader.result;
-      gen();
-     } 
-   
-    const fileUrl = URL.createObjectURL(file);
+    console.log(file.type)
+    url = URL.createObjectURL(file);
+    sessionStorage.setItem("video",url)
+    console.log("haha"+url)
+    
+    if(file.type =="video/mp4"){
+     
+    }
+
+    else{
+      var reader = new window.FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onload = function(e){
+        const img = new Image()
+        img.src = reader.result;
+        buffer = reader.result;
+        gen();
+       } 
+    }
+    
   }, [onFileUploaded]);
 
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop, 
-    accept: 'image/*'
   });
 
   function  HandleBack(event){  
@@ -57,6 +71,11 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
     Back()
     let showfile = sessionStorage.getItem("chooseuploadimg")
     setShowFile(showfile)
+  }
+  
+
+  function  draw(event){  
+
   }
 
   function  HandleDelete(event){  
@@ -77,11 +96,9 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
     <div>
         <div className={classes.dropzone} {...getRootProps()}>
         { showFileRef.current=="-1" 
-            ? <input {...getInputProps()} accept='image/*' />
+            ? <input {...getInputProps()} />
             : <div></div>
           }
-          
-
           { showFileRef.current!="-1" 
             ? <img src={showFileRef.current} alt="Point thumbnail"/>
             : (
@@ -97,6 +114,8 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
         { showFileRef.current!="-1" ? <Button onClick={HandleDelete}>Delete</Button>:
          <Button disabled>Delete</Button>}
         <Button onClick={HandleNext}>Next</Button>
+
+        {draw()}
     </div>
   );
 }

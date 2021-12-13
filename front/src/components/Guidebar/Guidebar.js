@@ -30,7 +30,7 @@ const Guidebar = () => {
               </Button>
             </Link>
 
-            <Link to="/about"  style={{ textDecoration: 'none' }}>
+            <Link to="/videocap"  style={{ textDecoration: 'none' }}>
               <Button
                 key={pages[1]}
                 sx={{ my: 2, color: 'white', display: 'block' }} 
