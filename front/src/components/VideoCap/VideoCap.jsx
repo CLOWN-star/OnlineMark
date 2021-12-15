@@ -3,7 +3,10 @@ import { Link} from "react-router-dom";
 import Button from '@mui/material/Button';
 import CapZone from "../../components/CapZone";
 import {create} from 'ipfs-http-client';
- 
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+
 export default class CanvasComponent extends React.Component {
     
     constructor(props) {
@@ -11,7 +14,8 @@ export default class CanvasComponent extends React.Component {
         this.canvasRef = React.createRef();
         this.state = {
             filepath:[],
-            choose:-1
+            choose:-1,
+            desc:''
         };
     }
 
@@ -125,7 +129,24 @@ export default class CanvasComponent extends React.Component {
       
     stop = () => {
         document.body.removeChild(document.getElementById("video"));
-        clearInterval()
+        
+
+        var url = '/createtask';//传值的地址
+        let formData = new FormData();  
+        formData.append("fileurl",this.state.filepath); 
+        formData.append("desc",this.state.desc);
+        formData.append("owner", sessionStorage.getItem("login"));    
+        fetch(url, {
+            method: 'POST',//post方法
+            body: formData
+        })
+        .then(res => {res.json().
+            then((data)=> {
+                data.map((datas)=>{ 
+                    console.log(datas.state); 
+                    alert("创建成功，您的任务编号是"+datas.state)
+                })}
+            )})
     }
 
     GetselectFile=()=>{
@@ -155,7 +176,7 @@ export default class CanvasComponent extends React.Component {
         let url = this.state.filepath;
         let select = this.state.choose;
         if(select==url.length-1||url.length==0){
-            alert("请添加一张图片")
+            alert("已经是最后一张")
         }
         else{
             this.setState({choose:select+1})
@@ -197,12 +218,25 @@ export default class CanvasComponent extends React.Component {
     return (
         <div style={{ display: "flex",alignItems: "center"}}>
             <canvas ref={this.canvasRef} id={'cav'} width={900} height={500} />  
-            <div style={{ minWidth: "300px"}}>
-                <CapZone GetselectFile={this.GetselectFile} Back={this.Back} Next={this.Next} Delete={this.Delete}/>
+            <div>
+                <div style={{ minWidth: "300px"}}>
+                    <CapZone GetselectFile={this.GetselectFile} Back={this.Back} Next={this.Next} Delete={this.Delete}/>
+                </div>
+                <FormControl sx={{ m: 1, width: '40' }} variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">DESC</InputLabel>
+                    <OutlinedInput
+                        id="standard-helperText"
+                        type={'text'}
+                        label="Desc"
+                        type="search"
+                        variant="standard"
+                        onChange={event => this.setState({desc:event.target.value})}
+                    />
+                </FormControl>
+                <Link to="/" style={{ textDecoration: 'none' }}>
+                    <Button variant="contained" color="primary" onClick={this.stop}>发布任务</Button>  
+                </Link>
             </div>
-            <Link to="/">
-                <Button variant="contained" color="primary" onClick={this.stop}>标注完成</Button>  
-            </Link>
         </div>
    );
   }

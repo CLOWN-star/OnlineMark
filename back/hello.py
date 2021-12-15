@@ -31,31 +31,85 @@ class Task(BaseModel):
     __tablename__ = 'task'
     taskid = Column(Integer,primary_key=True)
     taskdesc = Column(CHAR(100))
-    endtime = Column(Integer)
     taskowner = Column(Integer)
     tasktaker = Column(Integer)
     taskstate = Column(Integer)
+
 
 class IMG(BaseModel):
     __tablename__ = 'img'
     imgid = Column(Integer,primary_key=True)
     imgtask = Column(Integer)
     imguri = Column(CHAR(100))
-
-
-class MARK(BaseModel):
-    __tablename__ = 'mark'
-    markid = Column(Integer,primary_key=True)
-    markimg = Column(Integer)
-    startx = Column(Integer)
-    starty = Column(Integer)
-    endx = Column(Integer)
-    endy = Column(Integer)
+    markx = Column(CHAR(300))
+    marky = Column(CHAR(300))
+    point = Column(CHAR(100))
+    pointname = Column(CHAR(300))
 
 
 @app.route('/helloworld', methods=['GET', 'POST'])
 def hello_world(): 
     return "Hello World"
+
+
+@app.route('/createtask', methods=['GET', 'POST'])
+def createtask(): 
+    fileurl = request.form.get('fileurl')
+    owner = request.form.get('owner')
+    desc = request.form.get('desc')
+    sql = "insert into task(taskdesc,taskowner,tasktaker,taskstate) values(\""+desc+"\",\""+owner+"\",0,0)"
+    engine.execute(sql)
+    sql = "select taskid from task where taskdesc = \""+desc+"\" and taskowner =\""+owner+"\"order by taskid desc limit 1"
+    selectid =  engine.execute(sql)
+    for select in selectid:
+        taskid = select[0]
+    lists = fileurl.split(',') 
+    for list in lists:
+        sql = "insert into img(markx,marky,point,pointname,imgtask,imguri) values(0,0,0,0,"+str(taskid)+",\""+list+"\")"
+        print(sql)
+        engine.execute(sql)
+    test = {'state':taskid}
+    list = []
+    list.append(test)
+    return json.dumps(list)
+
+
+@app.route('/savemark', methods=['GET', 'POST'])
+def savemark(): 
+    imgid = request.form.get('imgid')
+    markx = request.form.get('markx')
+    marky = request.form.get('marky')
+    savepoint = request.form.get('point')
+    savename = request.form.get('pointname')
+    sql = "update img set markx = \""+str(markx)+"\",marky=\""+str(marky)+"\",point=\""+ str(savepoint)+ "\",pointname =\"" +str(savename)+"\" where(imgid = \""+str(imgid)+"\")"
+    engine.execute(sql)
+    test = {'state':1}
+    list = []
+    list.append(test)
+    return json.dumps(list)
+
+
+@app.route('/getinfo', methods=['GET', 'POST'])
+def getinfo(): 
+    imgid = request.form.get('imgid')
+    sql = "select * from img  where(imgid =\""+str(imgid)+"\")"
+    print(sql)
+    selectImg = engine.execute(sql)
+    test = {}
+    list = []
+    for img in selectImg:
+        px = img[3]
+        py = img[4]
+        pp = img[5]
+        ppn = img[6]
+        pointx = px.split(',')
+        pointy = py.split(',')
+        point  = pp.split(',')
+        pointname = ppn.split(',')
+        test = {'imgid': imgid, 'markx': pointx, 'marky':pointy, 'point':point ,'pointname':pointname}
+        list.append(test)
+    print(list)
+    return json.dumps(list)
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -156,7 +210,7 @@ def gettask():
         test = {}
         list = []
         for userItem in selectUser:
-            test = {'taskid': userItem[0], 'taskdesc': userItem[1], 'endtime': userItem[2], 'taskowner': userItem[3], 'tasktaker': userItem[4], 'taskstate': userItem[5]}
+            test = {'taskid': userItem[0], 'taskdesc': userItem[1],  'taskowner': userItem[2], 'tasktaker': userItem[3], 'taskstate': userItem[4]}
             list.append(test)
         return json.dumps(list)
     else:
@@ -176,22 +230,6 @@ def getimg():
         return json.dumps(list)
     else:
         return "error"
-
-
-@app.route('/getmark', methods=['GET', 'POST'])
-def getmark():
-    cookie = request.values.get("cookie")
-    if cookie == "20020118czr":
-        selectUser = engine.execute("select * from mark")
-        test = {}
-        list = []
-        for userItem in selectUser:
-            test = {'markid': userItem[0], 'markimg': userItem[1], 'startx': userItem[2], 'starty': userItem[3], 'endx': userItem[4], 'endy': userItem[5]}
-            list.append(test)
-        return json.dumps(list)
-    else:
-        return "error"
-
 
 
 if __name__=='__main__':

@@ -91,11 +91,13 @@ export default class CanvasComponent extends React.Component {
                         this.canvasContext.beginPath();
                         this.canvasContext.moveTo(pointx[i]+r,pointy[i]);       
                         this.canvasContext.arc(pointx[i],pointy[i],r,0,2*Math.PI);
+                        
                         this.canvasContext.fillStyle = (i==this.state.choosepoint?'#DC143C':this.state.choosecolor);
                         this.canvasContext.fill();
                         this.canvasContext.fillStyle = this.state.choosecolor;
                         this.canvasContext.font="15px Arial";
                         this.canvasContext.fillText(this.state.savename[j],pointx[i]-10,pointy[i]-10,100)
+                        this.canvasContext.beginPath();
                         this.canvasContext.moveTo(pointx[i],pointy[i]);
                         this.canvasContext.lineTo(pointx[i+1], pointy[i+1]);  
                         this.canvasContext.stroke();
@@ -111,6 +113,7 @@ export default class CanvasComponent extends React.Component {
                         this.canvasContext.fillStyle = (i==this.state.choosepoint?'#DC143C':this.state.choosecolor);
                         this.canvasContext.fill();
                         this.canvasContext.fillStyle = this.state.choosecolor; 
+                        this.canvasContext.beginPath();
                         this.canvasContext.moveTo(pointx[i], pointy[i]);
                         if(j==0){       //第一个图形
                             this.canvasContext.lineTo(pointx[0], pointy[0]);  
@@ -132,6 +135,7 @@ export default class CanvasComponent extends React.Component {
                         this.canvasContext.fill();
                         
                         this.canvasContext.fillStyle = this.state.choosecolor;
+                        this.canvasContext.beginPath();
                         this.canvasContext.moveTo(pointx[i],pointy[i]);
                         this.canvasContext.lineTo(pointx[i+1], pointy[i+1]);  
                         this.canvasContext.stroke();    
@@ -149,6 +153,29 @@ export default class CanvasComponent extends React.Component {
     }
 
     initPainter = (props) => {
+        let getinfo = (event) => {
+            var url = '/getinfo';//传值的地址
+            let formData = new FormData(); 
+            formData.append("imgid",1);  
+            fetch(url, {
+                method: 'POST',//post方法
+                body: formData
+            })
+            .then(res => {res.json().
+                then((data)=> {
+                    data.map((datas)=>{ 
+                        console.log("data"+datas.markx) 
+                       
+                        let ix = datas.markx
+                        let iy = datas.marky
+                        let ip = datas.point
+                        let ipp = datas.pointname
+                        this.draw(ix,iy,ip,ipp)
+                        // ipp = datas.pointname
+                    })}
+                )})
+        };
+       
         let canvas = this.canvasRef.current;
         this.canvasContext = canvas.getContext('2d');
         var pointx = [];
@@ -158,6 +185,7 @@ export default class CanvasComponent extends React.Component {
         var img = new Image();
         img.src = 'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg'
         this.canvasContext.drawImage(img,100,100);
+        getinfo();
         let x = 0;
         let y = 0;
         let lastdown;
@@ -169,9 +197,14 @@ export default class CanvasComponent extends React.Component {
         name.push("Undefine")
         this.canvasContext.lineWidth = 2;
         this.canvasContext.strokeStyle = '#000000';
-    
+        
         let onMouseDownEvent = (e) => {
-            
+            if(this.state.savex.length!=0){
+                pointx = this.state.savex;
+                pointy = this.state.savey;
+                crossflag = this.state.savepoint;
+                name = this.state.savename;
+            }
 
             if(startflag!=0){
                 pointx.pop();
@@ -410,6 +443,7 @@ export default class CanvasComponent extends React.Component {
             canvas.removeEventListener('mouseup',enddrugpoint);
         }
 
+        
 
         let modetest = (e)=>{                                             //保持检测函数
             if(this.state.choosemode==0){
@@ -434,6 +468,8 @@ export default class CanvasComponent extends React.Component {
         this.initPainter();
         
     }
+
+   
 
     handleRadioChange = (event) => {
         this.setState({choose:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
@@ -488,11 +524,37 @@ export default class CanvasComponent extends React.Component {
 
     handleClickOpen = () => {
         this.setState({open:true})
-      };
+    };
     
     handleClose = () => {
         this.setState({open:false})
-      };
+    };
+
+    handlesave = () => {
+        var url = '/savemark';//传值的地址
+        let formData = new FormData(); 
+        formData.append("imgid",1);  
+        formData.append("markx",this.state.savex); 
+        formData.append("marky",this.state.savey);
+        formData.append("point",this.state.savepoint);  
+        formData.append("pointname",this.state.savename);  
+        fetch(url, {
+            method: 'POST',//post方法
+            body: formData
+        })
+        .then(res => {res.json().
+            then((data)=> {
+                data.map((datas)=>{ 
+                    console.log(datas.state); 
+                    if(datas.state==1){
+                        alert("保存成功")
+                    }
+                    else{
+                        alert("保存失败，请重试")
+                    }
+                })}
+            )})
+    };
 
       
 
@@ -664,7 +726,7 @@ export default class CanvasComponent extends React.Component {
                             noValidate
                             autoComplete="off"
                         >
-                            <Button size="big" variant="contained" onClick ={this.handleClickOpen}>save</Button>
+                            <Button size="big" variant="contained" onClick ={this.handlesave}>save</Button>
                             <Button size="big" variant="contained" onClick ={this.handleClickOpen}>export</Button>
                         </Box>
                     </div>

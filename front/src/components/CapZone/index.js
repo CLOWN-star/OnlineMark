@@ -1,9 +1,8 @@
-import React, { useState, useCallback ,useRef} from 'react';
+import React, { useState, useRef} from 'react';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import {useDropzone} from 'react-dropzone';
 import { useStyles } from "./styles.js";
-import {create} from 'ipfs-http-client';
 import Button from '@mui/material/Button';
+
 
 const CapZone = ({ GetselectFile, Back, Next, Delete})  => {
   const classes = useStyles();
@@ -11,6 +10,9 @@ const CapZone = ({ GetselectFile, Back, Next, Delete})  => {
   const showFileRef = useRef(showFile);
   showFileRef.current = showFile;
   var listener;
+
+
+
   listener = setInterval(Getchoose, 100)   
   function  HandleBack(event){  
     Back()
@@ -48,7 +50,8 @@ const CapZone = ({ GetselectFile, Back, Next, Delete})  => {
     
   return (
     <div>
-        <div className={classes.dropzone}>
+        <div className={classes.dropzone} >
+        
           { showFileRef.current!="-1" 
             ? <img src={showFileRef.current} alt="Point thumbnail"/>
             : <p>
@@ -61,7 +64,8 @@ const CapZone = ({ GetselectFile, Back, Next, Delete})  => {
         { showFileRef.current!="-1" ? <Button onClick={HandleDelete}>Delete</Button>:
          <Button disabled>Delete</Button>}
         <Button onClick={HandleNext}>Next</Button>
-       
+        
+        
     </div>
    
   );

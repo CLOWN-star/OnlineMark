@@ -4,6 +4,12 @@ import {useDropzone} from 'react-dropzone';
 import { useStyles } from "./styles.js";
 import {create} from 'ipfs-http-client';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { Link } from "react-router-dom";
 
 
 let buffer;
@@ -11,8 +17,8 @@ let buffer;
 const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
   const classes = useStyles();
   const [showFile, setShowFile] = useState("-1");
+  const [open, setOpen] = useState(0);
   const showFileRef = useRef(showFile);
-  
   
   showFileRef.current = showFile;
 
@@ -43,7 +49,7 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
     console.log("haha"+url)
     
     if(file.type =="video/mp4"){
-      
+      setOpen(1)
     }
 
     else{
@@ -72,10 +78,10 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
     setShowFile(showfile)
   }
   
-
-  function  draw(event){  
-
+  function handleClose(event){
+    setOpen(0)
   }
+
 
   function  HandleDelete(event){  
     console.log("desc")
@@ -90,6 +96,7 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
     let showfile = sessionStorage.getItem("chooseuploadimg")
     setShowFile(showfile)
   }
+
     
   return (
     <div>
@@ -113,8 +120,21 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
         { showFileRef.current!="-1" ? <Button onClick={HandleDelete}>Delete</Button>:
          <Button disabled>Delete</Button>}
         <Button onClick={HandleNext}>Next</Button>
-
-        {draw()}
+        <div>
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>提示</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                  您的输入类型为视频，请点击按钮前往截取
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Link to="/videocap"  style={{ textDecoration: 'none' }}>
+                <Button >前往截图</Button>
+              </Link>
+            </DialogActions>
+          </Dialog>
+        </div>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import React , { useState,useRef }from 'react';
-import { TextField } from '@material-ui/core';
 import { useStyles } from "./styles.js";
 import DropZone from "../../components/DropZone";
 import { Link} from "react-router-dom";
@@ -17,11 +16,32 @@ const Create = () => {
     let fileurl =[];
     let select = -1;
     let filenumber = 0
+    let desc ="";
     const classes = useStyles();
-
-
-    const [desc, setDesc] = useState()
     
+
+    const  createTask = (e)=>{ 
+        var url = '/createtask';//传值的地址
+        let formData = new FormData();  
+        formData.append("fileurl",fileurl); 
+        formData.append("desc",desc);
+        formData.append("owner", sessionStorage.getItem("login")); 
+        console.log(fileurl) 
+        console.log(desc);    
+        fetch(url, {
+            method: 'POST',//post方法
+            body: formData
+        })
+        .then(res => {res.json().
+            then((data)=> {
+                data.map((datas)=>{ 
+                    console.log(datas.state); 
+                    alert("创建成功，您的任务编号是"+datas.state)
+                })}
+            )})
+    }
+
+
     function  SelectedFile(event){  
         select = filenumber;
         filenumber++;
@@ -89,10 +109,7 @@ const Create = () => {
         console.log("s"+select+"f"+filenumber)
     }
 
-    function  createTask(event){  
-        console.log(desc)
-    }
-
+    
     return (
         <div className={classes.page}>
             <form>
@@ -116,7 +133,7 @@ const Create = () => {
                                     label="Desc"
                                     type="search"
                                     variant="standard"
-                                    onChange={event => setDesc(event.target.value)}
+                                    onChange={event => {desc = event.target.value}}
                                 />
 
                             </FormControl>

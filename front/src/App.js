@@ -72,21 +72,6 @@ export default class AppRouter extends Component {
          );  
    };
 
-   getmark(){
-      let uri =  "/getmark?cookie=20020118czr"
-      fetch(uri, {method: 'GET'}).then((res)=>{res.json().
-            then((data)=> {
-               console.log(data);  
-                     data.map((datas)=>{ 
-                        this.setState({marks: [...this.state.marks, datas],});
-                        }
-                     )                    
-                     this.setState({isloading:this.state.isloading+1});
-                  }
-            )}
-         );  
-   };
-
    getconnect(){
       console.log("app"+this.state.hello)
       let uri =  "/getconnect"
@@ -114,7 +99,6 @@ export default class AppRouter extends Component {
       this.getuser();    
       this.gettask();
       this.getimg();
-      this.getmark();
       this.getconnect();
       localStorage.setItem("file1","");
       localStorage.setItem("file2","");
@@ -126,7 +110,7 @@ export default class AppRouter extends Component {
   
 render() {
      
-      if (this.state.isloading!=5) {
+      if (this.state.isloading!=4) {
          return <p>isLoading...</p>
       }
       else{
