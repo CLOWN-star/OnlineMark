@@ -76,7 +76,6 @@ const Create = () => {
             sessionStorage.setItem("chooseuploadimg",fileurl[select]);
         }
         else{
-            console.log("chufa")
             let tmp = fileurl;
             for(let i = select;i <tmp.length-1;i++){
                 tmp[i] = tmp[i+1]

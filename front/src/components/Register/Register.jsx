@@ -266,17 +266,6 @@ const Register = () => {
                                 <FormHelperText id="component-error-text">请输入格式正确的邮箱地址</FormHelperText>
                             </FormControl>
                             }
-
-
-                            {/* <FormControl  variant="standard" >
-                                <InputLabel htmlFor="component-error">github用户名</InputLabel>
-                                <Input
-                                    id="component-error"
-                                    
-                                   
-                                />
-                                <FormHelperText id="component-error-text">请输入您的github用户名</FormHelperText>
-                            </FormControl> */}
                             {   account&&password&&same&&email&&!wrongaccount&&!wrongpassword&&!wrongsame&&!wrongemail?
                                 <CardActions>                      
                                     <Button variant="contained" color="primary" onClick={subregister}>

@@ -4,7 +4,6 @@ import {useDropzone} from 'react-dropzone';
 import { useStyles } from "./styles.js";
 import {create} from 'ipfs-http-client';
 import Button from '@mui/material/Button';
-import { AddLink } from '@mui/icons-material';
 
 
 let buffer;
@@ -16,8 +15,7 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
   
   
   showFileRef.current = showFile;
-  var videoElem;
-  var videoDiv;
+
   var url;
   const ipfs = create({
     host: "ipfs.infura.io",
@@ -45,12 +43,13 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
     console.log("haha"+url)
     
     if(file.type =="video/mp4"){
-     
+      
     }
 
     else{
       var reader = new window.FileReader();
       reader.readAsArrayBuffer(file);
+      console.log("fileur;"+file)
       reader.onload = function(e){
         const img = new Image()
         img.src = reader.result;
@@ -100,7 +99,7 @@ const DropZone = ({ onFileUploaded ,GetselectFile, Back, Next, Delete})  => {
             : <div></div>
           }
           { showFileRef.current!="-1" 
-            ? <img src={showFileRef.current} alt="Point thumbnail"/>
+            ? <img src={ showFileRef.current} alt="Point thumbnail"/>
             : (
               <p>
                 <CloudUploadIcon />
