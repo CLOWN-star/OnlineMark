@@ -1,32 +1,30 @@
 import React, { useState, useEffect } from "react";
-import Card from "../Card";
+import Card1 from "../Card";
 import Grid from "@material-ui/core/Grid";
+import Button from '@mui/material/Button';
+import { Link } from "react-router-dom";
+const Mytasks = ({tasks,imgs}) => {
 
-const Marketplace = ({
-    NFTs,
-    NFTCount,
-}) => {
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        if (NFTs.length !== 0) {
-            if (NFTs[0].metaData !== undefined) {
-                setLoading(loading);
+    function selectimg(id){
+        let url = 0
+        imgs.map((img)=>{
+            if(img.imgtask==id&&url==0){
+                url = img.imguri
             }
-            else {
-                setLoading(false);
-            }
-        }
-    }, [NFTs]);
+        })
+        console.log(url)
+        return url
+    }
 
     return (
         <div>
-            <div className="card mt-1">
-                <div className="card-body align-items-center d-flex justify-content-center">
-                    <h5>
-                        All Tasks
-                    </h5>
-                </div>
+            <div >
+                <h1>
+                    Tasks
+                </h1>
+                <Link to="/create"  style={{ textDecoration: 'none' }}>
+                    <Button >创建任务</Button>
+                </Link>
             </div>
             <Grid
                 container
@@ -35,17 +33,17 @@ const Marketplace = ({
                 alignItems="center"
                 spacing={2}
             >
-                {NFTs.map((NFT)  => (
-                    <Grid item key={NFT.ID}>
-                    <Card {...NFT} />
+                {tasks.map((task)  => (
+                    task.taskowner ==  sessionStorage.getItem("login")?
+                    <Grid item key={task.taskid}>
+                        <Card1 task = {task} img = {selectimg(task.taskid)} />
                     </Grid>
+                    :<div></div>
                 ))}
             </Grid>
-                    
-               
             
         </div>
     )
 }
 
-export default Marketplace;
+export default Mytasks;

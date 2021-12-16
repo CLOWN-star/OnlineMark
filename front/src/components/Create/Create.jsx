@@ -115,7 +115,7 @@ const Create = () => {
             <form>
                 <div className={classes.formHeader}>
                     <h1>Create Task</h1>
-                    <Link to="/">
+                    <Link to="/mytask"  onClick="refresh">
                         <CancelOutlinedIcon fontSize="large" />
                     </Link>
                 </div>

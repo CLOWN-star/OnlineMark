@@ -106,7 +106,14 @@ def getinfo():
         pointy = py.split(',')
         point  = pp.split(',')
         pointname = ppn.split(',')
-        test = {'imgid': imgid, 'markx': pointx, 'marky':pointy, 'point':point ,'pointname':pointname}
+        pointx = [ int(x) for x in pointx ]
+        pointy = [ int(x) for x in pointy ]
+        point  = [ int(x) for x in point ]
+        print(pointx)
+        if px=='0' and py=='0':
+            test = {'imgid': [], 'markx':[] , 'marky':[], 'point': [],'pointname':[]}
+        else:
+            test = {'imgid': imgid, 'markx': pointx, 'marky':pointy, 'point':point ,'pointname':pointname}
         list.append(test)
     print(list)
     return json.dumps(list)
@@ -172,34 +179,7 @@ def loginin():
         return json.dumps(list)
 
 
-@app.route('/getconnect', methods=['GET', 'POST'])
-def getconnect(): 
-    test = {'state':connect[0],'userid':connect[1]}
-    list = []
-    list.append(test)
-    return json.dumps(list)
-
-
-@app.route('/getuser', methods=['GET', 'POST'])
-def getuser():
-    cookie = request.values.get("cookie")
-    if cookie == "20020118czr":
-        selectUser = engine.execute("select * from user")
-        test = {}
-        list = []
-        for userItem in selectUser:
-            print(userItem)
-            test = {'userid': userItem[0], 'name': userItem[1], 'password': userItem[2], 'mail': userItem[3]}
-            list.append(test)
-        return json.dumps(list)
-    else:
-        return "error"
-
-
 from urllib.parse import urlparse, urljoin
- 
-
-
 
 
 @app.route('/gettask', methods=['GET', 'POST'])

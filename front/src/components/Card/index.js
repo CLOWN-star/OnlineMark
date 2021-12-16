@@ -17,42 +17,37 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Link } from "react-router-dom";
 import { CardActionArea } from '@mui/material';
 
-const Card1 = ({ taskid, taskdesc, endtime, taskowner, taskstate}) => {
+const Card1 = ({task,img}) => {
 
   return (
     
-    <Link to={`/task/${taskid}`} style={{ textDecoration: 'none' }}>
+    <Link to={`/task/${task.taskid}`} style={{ textDecoration: 'none' }}>
       
        <Card >
-       <CardActionArea>
+        <CardActionArea>
           <CardMedia
             component="img"
-            alt={1}
             height="240"
-            image={'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg'}
-            title={1}
+            image={img}
           />
-          
-          <CardContent className={1}>
-            <div className={1}>
+          <CardContent >
+            <div >
               <Typography
                 className={"MuiTypography--heading"}
                 variant={"h5"}
                 gutterBottom
               >
               </Typography>
-              <Typography variant="h6" className={1}>
-                <span> Owner:{taskowner}</span>
+              <Typography variant="h6">
+                <span> Taskid:{task.taskid}</span>
               </Typography>
-              <Typography variant="h6" className={1}>
-                <span>Task：{2}</span>
+              <Typography variant="h6">
+                <span>Taskdesc:{task.taskdesc}</span>
               </Typography>
               
             </div>
           </CardContent>
-          
-
-          </CardActionArea>
+        </CardActionArea>
       </Card>
      
      </Link>

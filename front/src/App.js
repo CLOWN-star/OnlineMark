@@ -7,6 +7,8 @@ import Create from "./components/Create/Create";
 import Mark from "./components/Mark/Mark";
 import VideoCap from "./components/VideoCap/VideoCap";
 import Register from "./components/Register/Register";
+import Task from "./components/Task/Task";
+import Mytasks from "./components/Mytasks/Mytasks";
 
 var arr = ["a","b","c"]
 export default class AppRouter extends Component {
@@ -16,31 +18,10 @@ export default class AppRouter extends Component {
           hello: "Hello world",
           isloading:0,
           id:"",
-          login:[],    //第一位是否登录，第二位用户id
-          users:[],
           tasks:[],
-          imgs:[],
-          marks:[]
+          imgs:[]
       };
   }
-
-   
-
-   getuser(){
-      
-      let uri =  "/getuser?cookie=20020118czr"
-      fetch(uri, {method: 'GET'}).then((res)=>{res.json().
-            then((data)=> {
-               console.log(data);  
-                     data.map((datas)=>{ 
-                        this.setState({users: [...this.state.users, datas],});
-                        }
-                     )              
-                     this.setState({isloading:this.state.isloading+1});
-                  }
-            )}
-         );  
-   };
 
    gettask(){
       let uri =  "/gettask?cookie=20020118czr"
@@ -71,46 +52,21 @@ export default class AppRouter extends Component {
             )}
          );  
    };
-
-   getconnect(){
-      console.log("app"+this.state.hello)
-      let uri =  "/getconnect"
-      fetch(uri, {method: 'GET'}).then((res)=>{res.json().
-            then((data)=> {
-               console.log(data);  
-                     data.map((datas)=>{
-                        this.setState({login: [...this.state.login, datas],});
-                        } 
-                        
-                     )     
-                     this.state.login.map((user)=>{
-                        console.log(user);  
-                     })                  
-                     this.setState({isloading:this.state.isloading+1});
-                     
-                  }
-              
-            )}
-         );  
-   };
    
    componentWillMount = async () => {
-      this.setState({lables:arr});
-      this.getuser();    
+      this.setState({lables:arr});    
       this.gettask();
       this.getimg();
-      this.getconnect();
       localStorage.setItem("file1","");
       localStorage.setItem("file2","");
       localStorage.setItem("file3","");
-     
   }
 
 
   
 render() {
      
-      if (this.state.isloading!=4) {
+      if (this.state.isloading!=2) {
          return <p>isLoading...</p>
       }
       else{
@@ -123,19 +79,30 @@ render() {
                   <Routes>
                      <Route path="/"  
                         element={<Home
-                           users = {this.state.users}
-                           login = {this.state.login} 
-                           hello = {this.state.hello}
                         />} 
                      />
    
                      <Route path="/mytask" 
-                        element={<Create
+                        element={<Mytasks
+                           tasks = {this.state.tasks}
+                           imgs  = {this.state.imgs}  
+                        />} 
+                     /> 
+
+                     <Route path="/alltask" 
+                        element={<Task
+                           tasks = {this.state.tasks}
+                           imgs  = {this.state.imgs}
                         />} 
                      /> 
 
                      <Route path="/mark" 
                         element={<Mark  
+                        />} 
+                     /> 
+
+                     <Route path="/create" 
+                        element={<Create  
                         />} 
                      /> 
 
@@ -151,9 +118,6 @@ render() {
 
                      <Route path="/about" 
                         element={<About
-                           users = {this.state.users}
-                           login = {this.state.login} 
-                           hello = {this.state.hello}
                         />} 
                      /> 
    

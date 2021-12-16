@@ -14,8 +14,12 @@ import Card  from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
 import Alert from '@mui/material/Alert';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import { CardActionArea } from '@mui/material';
+import Typography from '@mui/material/Typography';
 
-const Home = ({users,login,hello}) => {
+const Home = () => {
   const [ Count, SetCount ] = useState(0)
   const [ result,setResult ] = useState(0)
   const [account, setAccount] = useState()
@@ -153,7 +157,7 @@ const Home = ({users,login,hello}) => {
       return (
 
         <div>
-          <Link to="/about" style={{ textDecoration: 'none' }}>
+          <Link to="/mytask" style={{ textDecoration: 'none' }}>
             <Grid
               container
               direction="row"
@@ -161,7 +165,34 @@ const Home = ({users,login,hello}) => {
               height
             >
               <Grid item key={1}>
-                <Card1 />
+                <h1></h1>
+                <Card >
+                  <CardActionArea>
+                    <CardMedia
+                      component="img"
+                      alt={1}
+                      height="240"
+                      image={'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg'}
+                      title={1}
+                    />
+                    <CardContent className={1}>
+                      <div className={1}>
+                        <Typography
+                          className={"MuiTypography--heading"}
+                          variant={"h5"}
+                          gutterBottom
+                        >
+                        </Typography>
+                        <Typography variant="h6" className={1}>
+                          <span> Owner:{1}</span>
+                        </Typography>
+                        <Typography variant="h6" className={1}>
+                          <span>Task:{2}</span>
+                        </Typography>
+                      </div>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
               </Grid>   
             </Grid>
           </Link> 
@@ -173,7 +204,7 @@ const Home = ({users,login,hello}) => {
       
       return (
 
-            Loginprocess(users,login,hello)
+            Loginprocess()
       );
       
     }

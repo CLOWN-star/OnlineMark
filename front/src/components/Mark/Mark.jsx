@@ -164,20 +164,18 @@ export default class CanvasComponent extends React.Component {
             .then(res => {res.json().
                 then((data)=> {
                     data.map((datas)=>{ 
-                        console.log("data"+datas.markx) 
-                       
                         let ix = datas.markx
                         let iy = datas.marky
                         let ip = datas.point
                         let ipp = datas.pointname
                         this.draw(ix,iy,ip,ipp)
-                        // ipp = datas.pointname
                     })}
                 )})
         };
        
         let canvas = this.canvasRef.current;
         this.canvasContext = canvas.getContext('2d');
+        this.setState({isdraw:0})
         var pointx = [];
         var pointy = [];
         var name = [];
@@ -308,9 +306,17 @@ export default class CanvasComponent extends React.Component {
         }
 
         let choosemodeMouseDown = (e)=>{
+
+            if(this.state.savex.length!=0){
+                pointx = this.state.savex;
+                pointy = this.state.savey;
+                crossflag = this.state.savepoint;
+                name = this.state.savename;
+            }
             
             x = e.offsetX;
             y = e.offsetY;
+
             this.setState({choosepoint:-1});
             for(let i = 0;i<pointx.length;i++){
                 if(pointx[i]-x<5&&pointx[i]-x>-5){
@@ -534,10 +540,19 @@ export default class CanvasComponent extends React.Component {
         var url = '/savemark';//传值的地址
         let formData = new FormData(); 
         formData.append("imgid",1);  
-        formData.append("markx",this.state.savex); 
-        formData.append("marky",this.state.savey);
-        formData.append("point",this.state.savepoint);  
-        formData.append("pointname",this.state.savename);  
+        if(this.state.savex.length==0){
+            formData.append("markx",0); 
+            formData.append("marky",0);
+            formData.append("point",0);  
+            formData.append("pointname",0); 
+        }
+        else{
+            formData.append("markx",this.state.savex); 
+            formData.append("marky",this.state.savey);
+            formData.append("point",this.state.savepoint);  
+            formData.append("pointname",this.state.savename); 
+        }
+         
         fetch(url, {
             method: 'POST',//post方法
             body: formData
@@ -559,6 +574,7 @@ export default class CanvasComponent extends React.Component {
       
 
     handleDelete = (event)=>{
+       
         this.setState({choosepoint:-1})
         let tmpx =[];
         tmpx = this.state.savex;
@@ -568,19 +584,20 @@ export default class CanvasComponent extends React.Component {
         tmppoint = this.state.savepoint;
         let tmpname =[];
         tmpname = this.state.savename;
-
-
         let m;
         if(this.state.choose==0){
             m = tmppoint[this.state.choose];
+
         }
         else{
             m = tmppoint[this.state.choose]-tmppoint[this.state.choose-1];
         }
-        for(let i = this.state.choose==0?0:tmppoint[this.state.choose-1]; i<tmppoint[tmppoint.length-1]; i++){
-            if(i+m<tmppoint[tmppoint.length-1]){
-                tmpx[i]=tmpx[i+ m];
-                tmpy[i]=tmpy[i+ m];
+        for(let i = (this.state.choose==0?0:tmppoint[this.state.choose-1]); i<tmppoint[tmppoint.length-1]; i++){
+            if(i<tmppoint[tmppoint.length-1]-m){
+                let inti = parseInt(i)
+                let imtm = parseInt(m)
+                tmpx[inti]=tmpx[inti+ imtm];
+                tmpy[inti]=tmpy[inti+ imtm];
             }
         }
         for(let i = this.state.choose==0?0:tmppoint[this.state.choose-1];i<tmppoint[this.state.choose];i++){
@@ -593,10 +610,13 @@ export default class CanvasComponent extends React.Component {
                 tmppoint[i] = this.state.savepoint[i+1]-m;
                 tmpname[i] = this.state.savename[i+1];
             }
-            
         }
         tmppoint.pop();
-        tmpname.pop();   
+        tmpname.pop();
+        console.log("event"+tmpx)
+        console.log("event"+tmpy)
+        console.log("event"+tmppoint)
+        console.log("event"+tmpname)
         this.setState({choose:-1},()=>{this.draw(tmpx,tmpy,tmppoint,tmpname)})
         
     }
