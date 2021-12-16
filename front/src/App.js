@@ -5,10 +5,13 @@ import About from "./components/About/About";
 import Guidebar from "./components/Guidebar/Guidebar";
 import Create from "./components/Create/Create";
 import Mark from "./components/Mark/Mark";
+import Check from "./components/Mark/Check";
 import VideoCap from "./components/VideoCap/VideoCap";
 import Register from "./components/Register/Register";
 import Task from "./components/Task/Task";
+import Taskdetail from "./components/Task/Taskdetail";
 import Mytasks from "./components/Mytasks/Mytasks";
+import DoTask from "./components/DoTask/DoTask";
 
 var arr = ["a","b","c"]
 export default class AppRouter extends Component {
@@ -89,15 +92,27 @@ render() {
                         />} 
                      /> 
 
+                     <Route path="/dotask" 
+                        element={<DoTask
+                           tasks = {this.state.tasks}
+                           imgs  = {this.state.imgs}  
+                        />} 
+                     /> 
+
                      <Route path="/alltask" 
                         element={<Task
                            tasks = {this.state.tasks}
                            imgs  = {this.state.imgs}
+                        />}  
+                     /> 
+
+                     <Route path="/mark/:imgid" 
+                        element={<Mark  
                         />} 
                      /> 
 
-                     <Route path="/mark" 
-                        element={<Mark  
+                     <Route path="/check/:imgid" 
+                        element={<Check  
                         />} 
                      /> 
 
@@ -122,7 +137,7 @@ render() {
                      /> 
    
                      <Route path="/task/:taskid"                   //任务详情
-                        element={<About
+                        element={<Taskdetail
                            tasks = {this.state.tasks}
                            imgs = {this.state.imgs}
                         />} 

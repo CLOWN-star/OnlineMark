@@ -31,9 +31,9 @@ class Task(BaseModel):
     __tablename__ = 'task'
     taskid = Column(Integer,primary_key=True)
     taskdesc = Column(CHAR(100))
-    taskowner = Column(Integer)
-    tasktaker = Column(Integer)
-    taskstate = Column(Integer)
+    taskowner = Column(CHAR(100))
+    tasktaker = Column(CHAR(100))
+    taskstate = Column(CHAR(100))
 
 
 class IMG(BaseModel):
@@ -45,6 +45,7 @@ class IMG(BaseModel):
     marky = Column(CHAR(300))
     point = Column(CHAR(100))
     pointname = Column(CHAR(300))
+    state = Column(CHAR(100))
 
 
 @app.route('/helloworld', methods=['GET', 'POST'])
@@ -65,7 +66,7 @@ def createtask():
         taskid = select[0]
     lists = fileurl.split(',') 
     for list in lists:
-        sql = "insert into img(markx,marky,point,pointname,imgtask,imguri) values(0,0,0,0,"+str(taskid)+",\""+list+"\")"
+        sql = "insert into img(state,markx,marky,point,pointname,imgtask,imguri) values(0,0,0,0,0,"+str(taskid)+",\""+list+"\")"
         print(sql)
         engine.execute(sql)
     test = {'state':taskid}
@@ -89,6 +90,28 @@ def savemark():
     return json.dumps(list)
 
 
+@app.route('/pass', methods=['GET', 'POST'])
+def passimg(): 
+    imgid = request.form.get('imgid')
+    sql = "update img set state = '1' where(imgid = \""+str(imgid)+"\")"
+    engine.execute(sql)
+    test = {'state':1}
+    list = []
+    list.append(test)
+    return json.dumps(list)
+
+
+@app.route('/notpass', methods=['GET', 'POST'])
+def notpassimg(): 
+    imgid = request.form.get('imgid')
+    sql = "update img set state = '0' where(imgid = \""+str(imgid)+"\")"
+    engine.execute(sql)
+    test = {'state':1}
+    list = []
+    list.append(test)
+    return json.dumps(list)
+
+
 @app.route('/getinfo', methods=['GET', 'POST'])
 def getinfo(): 
     imgid = request.form.get('imgid')
@@ -98,6 +121,7 @@ def getinfo():
     test = {}
     list = []
     for img in selectImg:
+        imgurl = img[2]
         px = img[3]
         py = img[4]
         pp = img[5]
@@ -111,9 +135,9 @@ def getinfo():
         point  = [ int(x) for x in point ]
         print(pointx)
         if px=='0' and py=='0':
-            test = {'imgid': [], 'markx':[] , 'marky':[], 'point': [],'pointname':[]}
+            test = {'imgid': imgid, 'imgurl':imgurl , 'markx':[] , 'marky':[], 'point': [],'pointname':[]}
         else:
-            test = {'imgid': imgid, 'markx': pointx, 'marky':pointy, 'point':point ,'pointname':pointname}
+            test = {'imgid': imgid,'imgurl':imgurl, 'markx': pointx, 'marky':pointy, 'point':point ,'pointname':pointname}
         list.append(test)
     print(list)
     return json.dumps(list)
@@ -195,6 +219,26 @@ def gettask():
         return json.dumps(list)
     else:
         return "error"
+
+
+@app.route('/taketask', methods=['GET', 'POST'])
+def taketask():
+    taskid = request.form.get('taskid')
+    tasktaker = request.form.get('tasktaker')
+    sql = "select tasktaker from task where taskid = \""+taskid+"\""
+    print(sql)
+    tasktakestate = engine.execute(sql)
+    for state in tasktakestate:
+        print(state[0])
+        if state[0] == '0':
+            test = {'state':1}
+            sql = "update task set taskstate = 1,tasktaker = \""+ tasktaker+"\" where taskid = \""+taskid+"\""
+            engine.execute(sql)
+        else:
+            test = {'state':0}
+    list = []
+    list.append(test)
+    return json.dumps(list)
 
 
 @app.route('/getimg', methods=['GET', 'POST'])

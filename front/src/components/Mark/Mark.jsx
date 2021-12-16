@@ -37,15 +37,17 @@ export default class CanvasComponent extends React.Component {
         filefloder:"",
         filename:"",
         filepath:"",
-        open:0
+        open:0,
+        showimgurl:'',
+        showimgid:''
     };
     
   }
 
-    draw = (pointx,pointy,crossflag,name) => {     
+    draw = (pointx,pointy,crossflag,name,url) => {     
         this.canvasContext.clearRect(0,0,800,550)
         var img = new Image();
-        img.src = 'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg'
+        img.src = url
         this.setState({imgw:img.width})
         this.setState({imgh:img.height})
         this.canvasContext.drawImage(img,100,100);
@@ -153,10 +155,16 @@ export default class CanvasComponent extends React.Component {
     }
 
     initPainter = (props) => {
+        let getimgurl
+        var img = new Image();
         let getinfo = (event) => {
+            let path = window.location.href
+            let tmp = path.split('\/')
+            let imgid = tmp.slice(-1)
+            console.log("imggggggg"+imgid)
             var url = '/getinfo';//传值的地址
             let formData = new FormData(); 
-            formData.append("imgid",1);  
+            formData.append("imgid",imgid);  
             fetch(url, {
                 method: 'POST',//post方法
                 body: formData
@@ -164,15 +172,20 @@ export default class CanvasComponent extends React.Component {
             .then(res => {res.json().
                 then((data)=> {
                     data.map((datas)=>{ 
+                        let imgurl = datas.imgurl
                         let ix = datas.markx
                         let iy = datas.marky
                         let ip = datas.point
                         let ipp = datas.pointname
-                        this.draw(ix,iy,ip,ipp)
+                        console.log("xxxxx"+imgurl)
+                        img.src = imgurl
+                        this.setState({showimgurl:imgurl})
+                        this.draw(ix,iy,ip,ipp,imgurl)
+                       
                     })}
                 )})
         };
-       
+        
         let canvas = this.canvasRef.current;
         this.canvasContext = canvas.getContext('2d');
         this.setState({isdraw:0})
@@ -180,10 +193,11 @@ export default class CanvasComponent extends React.Component {
         var pointy = [];
         var name = [];
         var crossflag =[];
-        var img = new Image();
-        img.src = 'https://ipfs.infura.io/ipfs/QmdNWFzAQhAuZ7YEX43RwK6HK63kZgb32DcE34bYYh6gPg'
-        this.canvasContext.drawImage(img,100,100);
+        
         getinfo();
+        
+        this.canvasContext.drawImage(img,100,100);
+       
         let x = 0;
         let y = 0;
         let lastdown;
@@ -279,7 +293,7 @@ export default class CanvasComponent extends React.Component {
                     canvas.addEventListener('mousemove',onMouseMoveEvent )
                 }
             }
-            this.draw(pointx,pointy,crossflag,name);
+            this.draw(pointx,pointy,crossflag,name,this.state.showimgurl);
         }
 
         let onMouseMoveEvent = (e) => {
@@ -300,7 +314,7 @@ export default class CanvasComponent extends React.Component {
             let newY = e.offsetY;
             pointx.push(x);
             pointy.push(y);
-            this.draw(pointx,pointy,crossflag,name);
+            this.draw(pointx,pointy,crossflag,name,this.state.showimgurl);
             x = newX;
             y = newY;
         }
@@ -430,7 +444,7 @@ export default class CanvasComponent extends React.Component {
                 
             }
             //console.log("choose"+this.state.choosepoint);
-            this.draw(pointx,pointy,crossflag,name);
+            this.draw(pointx,pointy,crossflag,name,this.state.showimgurl);
             canvas.addEventListener('mousemove',startdrugpoint);
             canvas.addEventListener('mouseup',enddrugpoint);
             //这里感觉是增加一个监视拖拽，然后增加move，在draw里面增加一个变大
@@ -441,7 +455,7 @@ export default class CanvasComponent extends React.Component {
             y = e.offsetY;
             pointx[this.state.choosepoint]=x;
             pointy[this.state.choosepoint]=y;
-            this.draw(pointx,pointy,crossflag,name);
+            this.draw(pointx,pointy,crossflag,name,this.state.showimgurl);
         }
 
         let enddrugpoint = (e)=>{                                             //保持检测函数
@@ -478,7 +492,7 @@ export default class CanvasComponent extends React.Component {
    
 
     handleRadioChange = (event) => {
-        this.setState({choose:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+        this.setState({choose:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
     };
 
     handleXChange = (event) => {
@@ -487,7 +501,7 @@ export default class CanvasComponent extends React.Component {
         tmp = this.state.savex;
         tmp[this.state.choosepoint] =  parseInt(event.target.value);
         if(tmp[this.state.choosepoint]>=0&&tmp[this.state.choosepoint]<=this.state.imgw+100){
-            this.setState({savex:tmp},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+            this.setState({savex:tmp},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
         }
          console.log(this.state.imgw) 
          console.log(this.state.imgh)   
@@ -502,30 +516,30 @@ export default class CanvasComponent extends React.Component {
     };
 
     handleColorChange = (event) => {
-        this.setState({choosecolor:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+        this.setState({choosecolor:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
     };
 
     handlefilefloderChange = (event) => {
-        this.setState({filefloder:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+        this.setState({filefloder:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
     };
 
     handlefilenameChange = (event) => {
-        this.setState({filename:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+        this.setState({filename:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
     };
 
     handlefilepathChange = (event) => {
-        this.setState({filepath:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+        this.setState({filepath:event.target.value},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
     };
 
     showpositionnumber = (event) => {
-        this.setState({showposition:!this.state.showposition},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+        this.setState({showposition:!this.state.showposition},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
     };
 
     handleNameChange = (event) => {
         let tmp = [] ;
         tmp = this.state.savename;
         tmp[this.state.choose] =  event.target.value
-        this.setState({savename:tmp},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename)})
+        this.setState({savename:tmp},()=>{this.draw(this.state.savex,this.state.savey,this.state.savepoint,this.state.savename,this.state.showimgurl)})
     };
 
     handleClickOpen = () => {
@@ -538,8 +552,11 @@ export default class CanvasComponent extends React.Component {
 
     handlesave = () => {
         var url = '/savemark';//传值的地址
+        let path = window.location.href
+        let tmp = path.split('\/')
+        let imgid = tmp.slice(-1)
         let formData = new FormData(); 
-        formData.append("imgid",1);  
+        formData.append("imgid",imgid);  
         if(this.state.savex.length==0){
             formData.append("markx",0); 
             formData.append("marky",0);
@@ -617,7 +634,7 @@ export default class CanvasComponent extends React.Component {
         console.log("event"+tmpy)
         console.log("event"+tmppoint)
         console.log("event"+tmpname)
-        this.setState({choose:-1},()=>{this.draw(tmpx,tmpy,tmppoint,tmpname)})
+        this.setState({choose:-1},()=>{this.draw(tmpx,tmpy,tmppoint,tmpname,this.state.showimgurl)})
         
     }
     
@@ -708,7 +725,6 @@ export default class CanvasComponent extends React.Component {
 
  
   render() {
-
     return (
         <div>
             <div style={{ display: "flex",alignItems: "center"}}>

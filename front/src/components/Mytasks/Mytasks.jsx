@@ -3,8 +3,11 @@ import Card1 from "../Card";
 import Grid from "@material-ui/core/Grid";
 import Button from '@mui/material/Button';
 import { Link } from "react-router-dom";
-const Mytasks = ({tasks,imgs}) => {
+import { useStyles } from "../Create/styles.js";
+import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
 
+const Mytasks = ({tasks,imgs}) => {
+    const classes = useStyles();
     function selectimg(id){
         let url = 0
         imgs.map((img)=>{
@@ -17,15 +20,16 @@ const Mytasks = ({tasks,imgs}) => {
     }
 
     return (
-        <div>
-            <div >
+        <div className={classes.page}>
+            <div className={classes.formHeader}>
                 <h1>
                     Tasks
                 </h1>
-                <Link to="/create"  style={{ textDecoration: 'none' }}>
-                    <Button >创建任务</Button>
+                <Link to="/create"   style={{ textDecoration: 'none' }}>
+                    <AddToPhotosIcon fontSize="large" />
                 </Link>
             </div>
+            
             <Grid
                 container
                 direction="row"
