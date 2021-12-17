@@ -21,7 +21,7 @@ const Guidebar = () => {
         <Toolbar disableGutters>
          
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Link to="/"  style={{ textDecoration: 'none' }}>
+            <Link to="/"  style={{ textDecoration: 'none' }} onClick="refresh"> 
               <Button
                 key={pages[0]}
                 sx={{ my: 2, color: 'white', display: 'block' }}
@@ -30,7 +30,7 @@ const Guidebar = () => {
               </Button>
             </Link>
 
-            <Link to="/alltask"  style={{ textDecoration: 'none' }}>
+            <Link to="/alltask"  style={{ textDecoration: 'none' }} onClick="refresh">
               <Button
                 key={pages[1]}
                 sx={{ my: 2, color: 'white', display: 'block' }} 
@@ -39,7 +39,7 @@ const Guidebar = () => {
               </Button>
             </Link>
 
-            <Link to="/mytask"  style={{ textDecoration: 'none' }}>
+            <Link to="/mytask"  style={{ textDecoration: 'none' }} onClick="refresh">
               <Button
                 key={pages[2]}
                 sx={{ my: 2, color: 'white', display: 'block' }}
@@ -48,7 +48,7 @@ const Guidebar = () => {
               </Button>
             </Link>
 
-            <Link to="/dotask"  style={{ textDecoration: 'none' }}>
+            <Link to="/dotask"  style={{ textDecoration: 'none' }} onClick="refresh">
               <Button
                 key={pages[3]}
                 sx={{ my: 2, color: 'white', display: 'block' }}  

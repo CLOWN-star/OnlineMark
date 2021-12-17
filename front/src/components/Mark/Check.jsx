@@ -237,6 +237,9 @@ export default class CanvasComponent extends React.Component {
                     if(datas.state==1){
                         alert("审核成功,请返回")
                     }
+                    else if(datas.state==2){
+                        alert("所有图片通过审核,审核结束")
+                    }
                     else{
                         alert("审核失败,请刷新")
                     }
@@ -261,7 +264,7 @@ export default class CanvasComponent extends React.Component {
                 data.map((datas)=>{ 
                     console.log(datas.state); 
                     if(datas.state==1){
-                        alert("审核成功,请返回")
+                        alert("已将任务设置为不通过")
                     }
                     else{
                         alert("审核失败,请刷新")

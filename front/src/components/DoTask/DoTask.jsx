@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Card1 from "../Card";
 import Grid from "@material-ui/core/Grid";
-import Button from '@mui/material/Button';
-import { Link } from "react-router-dom";
+import Alert from '@mui/material/Alert';
 import { useStyles } from "../Create/styles.js";
-import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 const DoTask = ({tasks,imgs}) => {
     const classes = useStyles();
@@ -18,15 +19,18 @@ const DoTask = ({tasks,imgs}) => {
         console.log(url)
         return url
     }
+    const [i, setI] = useState(1)
 
     return (
         <div className={classes.page}>
-            <div className={classes.formHeader}>
-                <h1>
-                    DO Tasks
-                </h1>
-            </div>
-            
+                <div className={classes.formHeader}>
+                    <h1>
+                        DO Tasks
+                    </h1>
+                </div>
+                <FormGroup style={{float:'right' }}>
+                    <FormControlLabel  control={<Checkbox onClick={()=>{setI(!i);console.log(i)}} defaultChecked /> } label="只查看未完成项目" />
+                </FormGroup>         
             <Grid
                 container
                 direction="row"
@@ -35,8 +39,11 @@ const DoTask = ({tasks,imgs}) => {
                 spacing={2}
             >
                 {tasks.map((task)  => (
-                    task.tasktaker ==  sessionStorage.getItem("login")?
+                    (task.tasktaker ==  sessionStorage.getItem("login"))&&((!i)||task.taskstate!='2')?
                     <Grid item key={task.taskid}>
+                        {task.taskstate=='3'?<Alert severity="warning">
+                            <strong>请完成任务{task.taskid}</strong>
+                        </Alert>:<></>}
                         <Card1 task = {task} img = {selectimg(task.taskid)} />
                     </Grid>
                     :<div></div>

@@ -84,6 +84,20 @@ def savemark():
     savename = request.form.get('pointname')
     sql = "update img set markx = \""+str(markx)+"\",marky=\""+str(marky)+"\",point=\""+ str(savepoint)+ "\",pointname =\"" +str(savename)+"\" where(imgid = \""+str(imgid)+"\")"
     engine.execute(sql)
+    sql = "select imgtask from img where(imgid = \""+str(imgid)+"\")"
+    selectTask = engine.execute(sql)
+    for task in selectTask:
+        taskid = task[0]
+        sql = "select taskstate from task where(taskid = \""+str(taskid)+"\")"
+        gettask = engine.execute(sql)
+        for tasksmall in gettask:
+            state = tasksmall[0]
+            print(state)
+            if state != '2':
+                sql = "update task set taskstate = '1' where(taskid = \""+str(taskid)+"\")"
+                engine.execute(sql)
+                sql = "update img set state = '0' where(imgid = \""+str(imgid)+"\")"
+                engine.execute(sql)
     test = {'state':1}
     list = []
     list.append(test)
@@ -95,7 +109,22 @@ def passimg():
     imgid = request.form.get('imgid')
     sql = "update img set state = '1' where(imgid = \""+str(imgid)+"\")"
     engine.execute(sql)
-    test = {'state':1}
+    sql = "select imgtask from img where(imgid = \""+str(imgid)+"\")"
+    selectTask = engine.execute(sql)
+    for task in selectTask:
+        taskid = task[0]
+        sql = "select state from img where(imgtask = \""+str(taskid)+"\")"
+        result = 1
+        allimg = engine.execute(sql)
+        for img in allimg:
+            result = result&int(img[0])
+        print(str(result)+"hhhhhh")
+        if result == 1:
+            sql = "update task set taskstate = '2' where(taskid = \""+str(taskid)+"\")"
+            engine.execute(sql)
+            test = {'state':2}
+        else:
+            test = {'state':1}
     list = []
     list.append(test)
     return json.dumps(list)
@@ -105,6 +134,40 @@ def passimg():
 def notpassimg(): 
     imgid = request.form.get('imgid')
     sql = "update img set state = '0' where(imgid = \""+str(imgid)+"\")"
+    engine.execute(sql)
+    sql = "select imgtask from img where(imgid = \""+str(imgid)+"\")"
+    selectTask = engine.execute(sql)
+    for task in selectTask:
+        taskid = task[0]
+        sql = "update task set taskstate = '-1' where(taskid = \""+str(taskid)+"\")"
+        engine.execute(sql)
+    test = {'state':1}
+    list = []
+    list.append(test)
+    return json.dumps(list)
+
+
+@app.route('/giveup', methods=['GET', 'POST'])
+def giveup(): 
+    taskid = request.form.get('taskid')
+    sql = "update task set taskstate = '0',tasktaker = 0 where(taskid = \""+str(taskid)+"\")"
+    engine.execute(sql)
+    sql = "select imgid from img where(imgtask = \""+str(taskid)+"\")"
+    selectimg = engine.execute(sql)
+    for giveupimg in selectimg:
+        imgid = giveupimg[0]
+        sql = "update img set markx = 0,marky = 0,point = 0,pointname = 0,state = 0 where(imgid = \""+str(imgid)+"\")"
+        engine.execute(sql)
+    test = {'state':1}
+    list = []
+    list.append(test)
+    return json.dumps(list)
+
+
+@app.route('/alerttask', methods=['GET', 'POST'])
+def alerttask(): 
+    taskid = request.form.get('taskid')
+    sql = "update task set taskstate = '3' where(taskid = \""+str(taskid)+"\")"
     engine.execute(sql)
     test = {'state':1}
     list = []
@@ -249,7 +312,7 @@ def getimg():
         test = {}
         list = []
         for userItem in selectUser:
-            test = {'imgid': userItem[0], 'imgtask': userItem[1], 'imguri': userItem[2]}
+            test = {'imgid': userItem[0], 'imgtask': userItem[1], 'imguri': userItem[2],'state':userItem[7]}
             list.append(test)
         return json.dumps(list)
     else:

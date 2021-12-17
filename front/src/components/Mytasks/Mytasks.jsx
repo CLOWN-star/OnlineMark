@@ -23,7 +23,7 @@ const Mytasks = ({tasks,imgs}) => {
         <div className={classes.page}>
             <div className={classes.formHeader}>
                 <h1>
-                    Tasks
+                    MY Tasks
                 </h1>
                 <Link to="/create"   style={{ textDecoration: 'none' }}>
                     <AddToPhotosIcon fontSize="large" />

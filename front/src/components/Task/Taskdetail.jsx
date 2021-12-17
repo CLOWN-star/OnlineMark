@@ -21,7 +21,10 @@ import Tooltip from '@mui/material/Tooltip';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { Link} from "react-router-dom";
 import CancelOutlinedIcon  from "@material-ui/icons/CancelOutlined";
-
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import AddAlertIcon from '@mui/icons-material/AddAlert';
 
 const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -47,6 +50,7 @@ const Taskdetail = ({tasks,imgs})  => {
     let showtaskstate
     let taskimgid = []
     let taskimgurl = []
+    let taskimgstate = []
     let nowuser =  sessionStorage.getItem("login");
     tasks.map((task)=>{
         if(task.taskid==showtaskid){
@@ -68,8 +72,32 @@ const Taskdetail = ({tasks,imgs})  => {
         if(img.imgtask==showtaskid){
             taskimgid.push(img.imgid)
             taskimgurl.push(img.imguri)
+            taskimgstate.push(img.state)
         }
     })
+
+    function  giveup(event){      
+        var url = '/giveup';//传值的地址
+        let formData = new FormData();  
+        formData.append("taskid",showtaskid); 
+        fetch(url, {
+            method: 'POST',//post方法
+            body: formData
+        })
+        .then(res => {res.json().
+            then((data)=> {
+                data.map((datas)=>{ 
+                    console.log(datas.state); 
+                    if(datas.state==1){
+                        alert("放弃成功,请返回")
+                    }
+                    else{
+                        alert("放弃失败,请刷新")
+                    }
+                    
+                })}
+            )})
+    }
 
     function  taketask(event){      
         var url = '/taketask';//传值的地址
@@ -95,6 +123,31 @@ const Taskdetail = ({tasks,imgs})  => {
             )})
     }
 
+    function  alerttask(event){      
+        var url = '/alerttask ';//传值的地址
+        let formData = new FormData();  
+        formData.append("taskid",showtaskid); 
+        fetch(url, {
+            method: 'POST',//post方法
+            body: formData
+        })
+        .then(res => {res.json().
+            then((data)=> {
+                data.map((datas)=>{ 
+                    console.log(datas.state); 
+                    if(datas.state==1){
+                        alert("提醒成功,请返回")
+                    }
+                    else{
+                        alert("提醒失败,请刷新")
+                    }
+                    
+                })}
+            )})
+    }
+
+
+
 
 
     return (
@@ -113,19 +166,28 @@ const Taskdetail = ({tasks,imgs})  => {
                         height="240"
                         image={taskimgurl[showimg]}
                     />
-                     <CardContent>
-                        <IconButton >
-                           <   DescriptionIcon/>
-                           <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
+                   
+                    <CardContent>      
+                        <div style={{float:'right' }}>{taskimgstate[showimg]==1?
+                            <IconButton>
+                                <CheckIcon />
+                            </IconButton>
+                            :
+                            <IconButton>
+                                <ClearIcon />
+                            </IconButton>}
+                        </div>
+                        <div  style={{ display: 'flex'}}>
+                            < DescriptionIcon/>
+                            <Typography sx={{ fontSize: 15 }} color="text.secondary" gutterBottom>
                                 {showtaskdesc}
                             </Typography>
-                        </IconButton>
-                        
+                        </div>
                     </CardContent>
                     <CardActions disableSpacing>
                         
                         <Tooltip title="Last">
-                            <IconButton onClick={()=>showimg!=0?setShowimg(showimg-1):console.log("first")}>
+                            <IconButton onClick={()=>showimg!=0?setShowimg(showimg-1):alert("已经是第一张")}>
                                 <ArrowBackOutlinedIcon />
                             </IconButton>
                         </Tooltip>
@@ -137,6 +199,16 @@ const Taskdetail = ({tasks,imgs})  => {
                            </IconButton>  :
                            <IconButton disabled>
                                <SportsHandballIcon/>
+                           </IconButton>}
+                         </Tooltip>
+                        
+                         <Tooltip title="Alert">
+                        {nowuser==showtaskowner&&showtaskstate!=0&&showtaskstate!=2?                     //提醒
+                           <IconButton onClick={alerttask}>
+                           <   AddAlertIcon/>
+                           </IconButton>  :
+                           <IconButton disabled>
+                               <AddAlertIcon/>
                            </IconButton>}
                          </Tooltip>
 
@@ -162,18 +234,21 @@ const Taskdetail = ({tasks,imgs})  => {
                             </IconButton>}
                         </Tooltip>
 
-                        <Tooltip title="Export">
-                        {nowuser==showtaskowner&&showtaskstate==2?     //审核结束之后才可下载
-                            <IconButton >
-                            <   FileDownloadIcon/>
+                        <Tooltip title="GiveUp">
+                        {nowuser==showtasktaker&&showtaskstate!=2?      //放弃
+                            
+                            <IconButton  onClick={giveup}>
+                            <   DeleteIcon/>
                             </IconButton>:
                             <IconButton disabled>
-                                <FileDownloadIcon/>
+                                <DeleteIcon/>
                             </IconButton>}
                         </Tooltip>
 
+                        
+
                         <Tooltip title="Next">
-                            <IconButton onClick={()=>showimg!=taskimgurl.length-1?setShowimg(showimg+1):console.log("last")}>
+                            <IconButton onClick={()=>showimg!=taskimgurl.length-1?setShowimg(showimg+1):alert("已经是最后一张")}>
                                 <ArrowForwardOutlinedIcon/>
                             </IconButton>
                         </Tooltip>
